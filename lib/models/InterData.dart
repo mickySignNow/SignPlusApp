@@ -3,50 +3,68 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
 
-class CustomerData {
+class InterData {
   String email;
-  String customerId;
-  String cardId;
-  bool hasCredit;
-  String hourBank;
+  String interId;
+  Map<String, dynamic> certificate;
+  String speciality;
   bool isActive;
   String fullName;
+  double score;
+  Map<String, dynamic> hoursOfWork;
+  int likes;
 
-  CustomerData(
+  InterData(
       {@required this.email,
-        @required this.customerId,
-        @required this.cardId,
-        @required this.hasCredit,
-        @required this.hourBank,
-        @required this.isActive,
-        @required this.fullName});
+      @required this.interId,
+      @required this.certificate,
+      @required this.speciality,
+      @required this.score,
+      @required this.likes,
+      @required this.hoursOfWork,
+      @required this.isActive,
+      @required this.fullName});
 
-  CustomerData.fromMap(Map snapshot)
+  InterData.fromMap(Map snapshot)
       : email = snapshot['email'] ?? '',
-        customerId = snapshot['customerId'] ?? '',
-        cardId = snapshot['cardId'],
-  // location = snapshot['loc'],
-        hasCredit = snapshot['hasCredit'],
-        hourBank = snapshot['hourBank'],
+        interId = snapshot['interId'] ?? '',
+        certificate = snapshot['certificate'],
+        // location = snapshot['loc'],
+        hoursOfWork = snapshot['hoursOfWork'],
+        score = snapshot['score'],
+        speciality = snapshot['speciality'],
         isActive = snapshot['isActive'],
+        likes = snapshot['likes'],
         fullName = snapshot['fullName'] ?? '';
 
   UsertoJson() {
     return {
       'email': email,
-      'customerId': customerId,
-      'cardId': cardId,
-      'hasCredit': hasCredit,
-      'hourBank': hourBank,
+      'interId': interId,
+      'certificate': {
+        'image': certificate['image'] as String ?? '',
+        'id': certificate['id'] as String ?? '',
+        'experience': certificate['experience'] as String ?? ''
+      },
+      'hoursOfWork': {
+        'startTime': hoursOfWork['startTime'] as String ?? '',
+        'endTime': hoursOfWork['endTime'] as String ?? '',
+        'days': hoursOfWork['days'] as int ?? ''
+      },
+      'fullName': fullName,
       'isActive': isActive,
-      'fullName': fullName
+      'speciality': speciality,
+      'likes': likes,
+      'score': score
     };
   }
 
-  uploadCustomer(BuildContext context){
-    DocumentReference doc = FirebaseFirestore.instance.collection('customerData').doc(customerId);
-    doc.set(this.UsertoJson())
-        .whenComplete(() => Navigator.pushReplacement(context,
-        MaterialPageRoute(builder: (con) => TabbedPage(uid: customerId,role: 'user'))));
+  uploadInter(BuildContext context) {
+    DocumentReference doc =
+        FirebaseFirestore.instance.collection('InterData').doc(interId);
+    doc.set(this.UsertoJson()).whenComplete(() => Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (con) => TabbedPage(uid: interId, role: 'inter'))));
   }
 }

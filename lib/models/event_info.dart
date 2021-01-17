@@ -1,59 +1,93 @@
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 
 /// class for events to firebase and read from firebase
 class EventInfo {
   final String id;
-  final String name;
+  final String customerId;
+  final String interId;
+  final String title;
   final String description;
-  // final String location;
   final String link;
+  String state;
+  bool answer;
+  DateTime creationTime;
   // final List<dynamic> attendeeEmails;
-  final String attendeeEmails;
-  // final bool shouldNotifyAttendees;
-  // final bool hasConfereningSupport;
+  final String email;
+
   final int startTimeInEpoch;
   final int endTimeInEpoch;
+  final double length;
+  final String date;
+  bool occupied = false;
 
   /// constructor will require what parameters must EventInfo class have in each instance
   EventInfo({
+    @required this.occupied,
     @required this.id,
-    @required this.name,
+    @required this.title,
     @required this.description,
-    // @required this.location,
-    @required this.link,
-    @required this.attendeeEmails,
-    // @required this.shouldNotifyAttendees,
-    // @required this.hasConfereningSupport,
+    this.link,
+    @required this.email,
     @required this.startTimeInEpoch,
     @required this.endTimeInEpoch,
+    @required this.length,
+    @required this.date,
+    @required this.state,
+    @required this.answer,
+    @required this.creationTime,
+    @required this.interId,
+    @required this.customerId,
   });
 
   /// create instance of EventInfo and fill from a Map/dictionary
   EventInfo.fromMap(Map snapshot)
       : id = snapshot['id'] ?? '',
-        name = snapshot['name'] ?? '',
         description = snapshot['desc'],
-        // location = snapshot['loc'],
+        title = snapshot['title'],
         link = snapshot['link'],
-        attendeeEmails = snapshot['emails'] ?? '',
+        email = snapshot['emails'] ?? '',
         // shouldNotifyAttendees = snapshot['should_notify'],
         // hasConfereningSupport = snapshot['has_conferencing'],
         startTimeInEpoch = snapshot['start'],
-        endTimeInEpoch = snapshot['end'];
+        endTimeInEpoch = snapshot['end'],
+        length = snapshot['length'],
+        date = snapshot['date'],
+        customerId = snapshot['customerId'],
+        interId = snapshot['interId'],
+        state = snapshot['state'],
+        answer = snapshot['answer'],
+        creationTime = snapshot['creationTime'],
+        occupied = snapshot['occupied'];
 
   /// convert EventInfo to Json
   toJson() {
     return {
       'id': id,
-      'name': name,
+      'customerId': customerId,
+      'interId': interId,
+      'state': state,
+      'answer': answer,
+      'title': title,
       'desc': description,
       // 'loc': location,
       'link': link,
-      'emails': attendeeEmails,
+      'emails': email,
       // 'should_notify': shouldNotifyAttendees,
       // 'has_conferencing': hasConfereningSupport,
       'start': startTimeInEpoch,
       'end': endTimeInEpoch,
+      'length': length,
+      'date': date,
+      'occupied': occupied,
     };
+  }
+
+  getUserNamebyId(String uid) async {
+    HttpsCallable getName =
+        FirebaseFunctions.instance.httpsCallable('GetUserNameById');
+    var res = await getName.call({'uid': uid});
+
+    return res.data;
   }
 }

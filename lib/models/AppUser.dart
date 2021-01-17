@@ -3,13 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
 
-class User {
+class AppUser {
   String email;
   String uid;
   String role;
   Map<String, dynamic> timeStamp;
   String fullName;
-  String creationDate;
+  DateTime creationDate;
   String phone;
   String address;
   double age;
@@ -17,7 +17,7 @@ class User {
   String language;
   String orginization;
 
-  User(
+  AppUser(
       {@required this.email,
       @required this.fullName,
       @required this.gender,
@@ -31,7 +31,7 @@ class User {
       @required this.creationDate,
       @required this.orginization});
 
-  User.fromMap(Map snapshot)
+  AppUser.fromMap(Map snapshot)
       : email = snapshot['email'] ?? '',
         role = snapshot['role'],
         fullName = snapshot['fullName'] ?? '',
@@ -45,11 +45,11 @@ class User {
         timeStamp = snapshot['timeStamp'],
         uid = snapshot['uid'] ?? '';
 
-  UsertoJson() {
+  AppUsertoJson() {
     return {
       'email': email,
       'fullName': fullName,
-      'creationDate': creationDate,
+      'creationDate': DateTime.now().toIso8601String(),
       'email': email,
       'phone': phone,
       'address': address,
@@ -64,12 +64,13 @@ class User {
     };
   }
 
-  uploadCustomer(BuildContext context) {
+  uploadCustomer(BuildContext context) async {
     DocumentReference doc =
         FirebaseFirestore.instance.collection('customerData').doc(uid);
-    doc.set(this.UsertoJson()).whenComplete(() => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (con) => TabbedPage(uid: uid, role: 'user'))));
+    await doc.set(this.AppUsertoJson()).whenComplete(() =>
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (con) => TabbedPage(uid: uid, role: 'customer'))));
   }
 }

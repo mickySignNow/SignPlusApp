@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
-import 'package:sign_plus/components/event_info.dart';
+import 'package:sign_plus/models/event_info.dart';
 
 final CollectionReference mainCollection =
-    FirebaseFirestore.instance.collection('event');
-final DocumentReference documentReference = mainCollection.doc('test');
+    FirebaseFirestore.instance.collection('events');
+// final CollectionReference allevents =
+//     FirebaseFirestore.instance.collection('all Events');
 
 class Storage {
-  Future<void> storeEventData(EventInfo eventInfo) async {
-    DocumentReference documentReferencer =
-        documentReference.collection('events').doc(eventInfo.id);
-
+  Future<void> storeEventData(EventInfo eventInfo, String uid) async {
+    DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
     Map<String, dynamic> data = eventInfo.toJson();
 
     print('DATA:\n$data');
@@ -20,9 +20,8 @@ class Storage {
     }).catchError((e) => print(e));
   }
 
-  Future<void> updateEventData(EventInfo eventInfo) async {
-    DocumentReference documentReferencer =
-        documentReference.collection('events').doc(eventInfo.id);
+  Future<void> updateEventData(EventInfo eventInfo, String uid) async {
+    DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
 
     Map<String, dynamic> data = eventInfo.toJson();
 
@@ -33,18 +32,73 @@ class Storage {
     }).catchError((e) => print(e));
   }
 
-  Future<void> deleteEvent({@required String id}) async {
-    DocumentReference documentReferencer =
-        documentReference.collection('events').doc(id);
+  Future<void> catchEvent(
+      EventInfo eventInfo, String uid, String eventLink) async {
+    DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
+
+    Map<String, dynamic> data = eventInfo.toJson();
+
+    print('DATA:\n$data');
+
+    await documentReferencer.update({
+      'occupied': true,
+      'interId': uid,
+      'link': eventLink
+    }).catchError((e) => print(e));
+  }
+
+  Future<void> deleteEvent({String id}) async {
+    DocumentReference documentReferencer = mainCollection.doc(id);
 
     await documentReferencer.delete().catchError((e) => print(e));
 
     print('Event deleted, id: $id');
   }
 
-  Stream<QuerySnapshot> retrieveEvents() {
+  Stream<QuerySnapshot> retrieveRequestEvents(String uid) {
+    print(uid);
     Stream<QuerySnapshot> myClasses =
-        documentReference.collection('events').orderBy('start').snapshots();
+        mainCollection.where('customerId', isEqualTo: uid).snapshots();
+    print(myClasses);
+
+    return myClasses;
+  }
+
+  Stream<QuerySnapshot> retrieveOccupiedEvents(String uid, bool isInter) {
+    Stream<QuerySnapshot> myClasses = (isInter)
+        ? mainCollection
+            .where('interId', isEqualTo: uid)
+            // .orderBy('start')
+            .snapshots()
+        : mainCollection
+            .where('customerId', isEqualTo: uid)
+            .where('occupied', isEqualTo: true)
+            // .orderBy('start')
+            .snapshots();
+
+    return myClasses;
+  }
+
+  Stream<QuerySnapshot> retrieveAllEvents() {
+    Stream<QuerySnapshot> myClasses =
+        mainCollection.where('occupied', isEqualTo: false).snapshots();
+
+    return myClasses;
+  }
+
+  Stream<QuerySnapshot> retrieveCustomerhistoryEvents(String uid) {
+    Stream<QuerySnapshot> myClasses = mainCollection
+        .where('customerId', isEqualTo: uid)
+        .where('date', isLessThan: DateTime.now())
+        .snapshots();
+    return myClasses;
+  }
+
+  Stream<QuerySnapshot> retrieveInterhistoryEvents(String uid) {
+    Stream<QuerySnapshot> myClasses = mainCollection
+        .where('interId', isEqualTo: uid)
+        .where('date', isLessThan: DateTime.now())
+        .snapshots();
 
     return myClasses;
   }
