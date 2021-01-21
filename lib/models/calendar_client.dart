@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:googleapis/calendar/v3.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class CalendarClient {
   static var calendar;
+
+  var uuid = Uuid();
 
   /**
    * a function to add an Event to Calendar
@@ -22,6 +25,8 @@ class CalendarClient {
   Future<Map<String, String>> insert({
     @required String title,
     String description,
+    String customerName,
+    String interName,
     @required List<EventAttendee> attendeeEmailList,
     @required bool shouldNotifyAttendees,
     @required bool hasConferenceSupport,
@@ -30,12 +35,37 @@ class CalendarClient {
   }) async {
     Map<String, String> eventData;
 
+    var eventRoomId = uuid.v1();
     String calendarId = "primary";
     Event event = Event();
     event.summary = title;
     event.description = description;
     event.attendees = attendeeEmailList;
     event.location = 'https://signplus-295808.web.app/';
+    String joiningLink = "https://signowvideo.web.app/?roomName=$eventRoomId";
+
+    print(interName);
+    print(customerName);
+    print('got here');
+
+    String interFirstName = 'מתורגמנית';
+    String customerFirstName = (customerName.isNotEmpty)
+        ? customerName.replaceAll(' ', '')
+        : 'customer';
+
+    print(interFirstName);
+    print(customerFirstName);
+    event.description = "Signow מברכת אתכם" +
+        '\n' +
+        'לכניסה לפגישה כנסי לקישור המתאים לך לפי השם:' +
+        '\n' +
+        '$interName: ' +
+        '\n' +
+        '$joiningLink&name=$interFirstName&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6' +
+        '\n ' +
+        '$customerName: ' +
+        '\n' +
+        '$joiningLink&name=$customerFirstName&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
 
     EventDateTime start = new EventDateTime();
     start.dateTime = startTime;
@@ -47,30 +77,33 @@ class CalendarClient {
     end.dateTime = endTime;
     event.end = end;
 
+    event.attendees.first.comment = joiningLink +
+        '&name=$customerName&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
+
+    event.attendees.last.comment = joiningLink +
+        '&name=$interName&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
+
     try {
       /// calendar was init when user authenticated
       /// insert here refers to the calendar ^ and will insert the event to the calendar connected
+      print('entered try');
       await calendar.events
           .insert(event, calendarId,
               conferenceDataVersion: 1, sendUpdates: "all")
           .then((value) {
-        if (value.status == "confirmed") {
-          String joiningLink;
-          String eventId;
+        print('entered insert');
+        // if (value.status == "confirmed") {
+        String eventId;
+        eventId = value.id;
 
-          eventId = value.id;
-
-          joiningLink = "https://signowvideo.web.app/?roomName=$eventId";
-
-          event.location = joiningLink;
-          eventData = {
-            'id': eventId,
-            'link': joiningLink,
-            'location': joiningLink
-          };
-        } else {
-          // print("Unable to add event to Google Calendar");
-        }
+        eventData = {
+          'id': eventId,
+          'link': joiningLink,
+          'location': joiningLink
+        };
+        // } else {
+        //   // print("Unable to add event to Google Calendar");
+        // }
       });
     } catch (e) {
       print('Error creating event $e');
@@ -91,6 +124,9 @@ class CalendarClient {
     @required DateTime endTime,
   }) async {
     Map<String, String> eventData;
+
+    print(attendeeEmailList.first.email);
+    print(attendeeEmailList.last.email);
 
     // If the account has multiple calendars, then select the "primary" one
     String calendarId = "primary";

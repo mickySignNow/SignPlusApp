@@ -189,7 +189,7 @@ class _TabbedPageState extends State<TabbedPage> {
                     ),
                   ),
             preferredSize: (width < 720)
-                ? Size(MediaQuery.of(context).size.width, 70.0)
+                ? Size(MediaQuery.of(context).size.width, 80.0)
                 : Size(MediaQuery.of(context).size.width, 40.0),
           ),
           body: (width < 720)

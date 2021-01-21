@@ -98,6 +98,18 @@ String testDateTime(DateTime date, DateTime hour) {
   }
 }
 
+bool testTime(int startTime, DateTime date) {
+  if (date.compareTo(DateTime.now()) != 0) return false;
+
+  var timeNow = TimeOfDay.fromDateTime(DateTime.now());
+  final now = timeNow.hour * 60 + timeNow.minute;
+  final eventTime = (DateTime.fromMillisecondsSinceEpoch(startTime).hour * 60 +
+          DateTime.fromMillisecondsSinceEpoch(startTime).minute) -
+      10;
+
+  return now > eventTime;
+}
+
 String phoneToLocal(String phone) {
   String areaCode = '+972 ';
   areaCode += phone.substring(1, 4) + ' ';

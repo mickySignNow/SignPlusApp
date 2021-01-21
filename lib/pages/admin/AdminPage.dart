@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/Functions.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:uuid/uuid.dart';
@@ -79,6 +80,7 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     print(widget.functionName);
+    FirebaseConstFunctions.getRoleById.call();
     return Scaffold(
         appBar: buildNavBar(
             context: context, title: 'admin screen ${widget.adminPannel}'),

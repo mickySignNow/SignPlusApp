@@ -263,6 +263,9 @@ informationAlertDialog(
     return await showDialog(
       context: context,
       builder: (context) {
+        Future.delayed(Duration(seconds: 3), () {
+          Navigator.of(context).pop(true);
+        });
         return AlertDialog(
           content: Text(message),
           actions: [

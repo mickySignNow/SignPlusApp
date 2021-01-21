@@ -9,6 +9,7 @@ import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
 import 'package:googleapis/accessapproval/v1.dart';
 import 'package:googleapis/admob/v1.dart';
 import 'package:googleapis/calendar/v3.dart' as CalendarApi;
+import 'package:googleapis/websecurityscanner/v1.dart';
 import 'package:intl/intl.dart';
 import 'package:sign_plus/models/calendar_client.dart';
 import 'package:sign_plus/models/event_info.dart';
@@ -105,6 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     CalendarClient calendar = CalendarClient();
     final width = MediaQuery.of(context).size.width;
     bool isWeb = (width > 700);
+
     return Scaffold(
       backgroundColor: Colors.white.withOpacity(0.9),
       appBar: buildNavBar(context: context, title: widget.title, role: ''),
@@ -211,7 +213,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                           .EventAttendee();
 
                                                   eventAttendee.email =
-                                                      eventInfo['emails'];
+                                                      event.email;
 
                                                   attendeeEmails
                                                       .add(eventAttendee);
@@ -226,13 +228,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                                   attendeeEmails
                                                       .add(eventAttendee);
-                                                  print(
-                                                      'calendar ${calendar.toString()}');
-                                                  print(
-                                                      'attendee emails $attendeeEmails');
+                                                  print(_auth.currentUser);
                                                   calendar
                                                       .insert(
                                                           title: event.title,
+                                                          interName: 'inter',
+                                                          customerName: event
+                                                              .customerName,
                                                           attendeeEmailList:
                                                               attendeeEmails,
                                                           shouldNotifyAttendees:
@@ -458,37 +460,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                           bottom: 8.0),
                                                   child: InkWell(
                                                     onTap: () async {
-                                                      if (event.link != null) {
-                                                        var name = 'signow';
-                                                        if (widget.role ==
-                                                            'customer') {
-                                                          final getname =
-                                                              await FirebaseFunctions
-                                                                  .instance
-                                                                  .httpsCallable(
-                                                                      "GetCustomerNameById")
-                                                                  .call({
-                                                            "customerID":
-                                                                event.interId
-                                                          });
-                                                          name =
-                                                              '&name=${getname.data}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
-                                                        } else {
-                                                          final getname =
-                                                              await FirebaseFunctions
-                                                                  .instance
-                                                                  .httpsCallable(
-                                                                      "GetInterNameById")
-                                                                  .call({
-                                                            "interID":
-                                                                event.interId
-                                                          });
-                                                          name =
-                                                              '&name=${getname.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
+                                                      if (testTime(
+                                                          event
+                                                              .startTimeInEpoch,
+                                                          DateTime.parse(
+                                                              event.date))) {
+                                                        if (event.link !=
+                                                            null) {
+                                                          var name = 'signow';
+                                                          if (widget.role ==
+                                                              'customer') {
+                                                            final getname =
+                                                                await FirebaseFunctions
+                                                                    .instance
+                                                                    .httpsCallable(
+                                                                        "GetCustomerNameById")
+                                                                    .call({
+                                                              "customerID":
+                                                                  event.interId
+                                                            });
+                                                            name =
+                                                                '&name=${getname.data}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
+                                                          } else {
+                                                            final getname =
+                                                                await FirebaseFunctions
+                                                                    .instance
+                                                                    .httpsCallable(
+                                                                        "GetInterNameById")
+                                                                    .call({
+                                                              "interID":
+                                                                  event.interId
+                                                            });
+                                                            name =
+                                                                '&name=${getname.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
+                                                          }
+                                                          launch(event.link +
+                                                              name);
+                                                          isLinkPressed = true;
                                                         }
-                                                        launch(
-                                                            event.link + name);
-                                                        isLinkPressed = true;
+                                                      } else {
+                                                        informationAlertDialog(
+                                                            context,
+                                                            'אנא הכנס/י בשעה המתאימה',
+                                                            'אישור');
                                                       }
                                                     },
                                                     child: Text(
@@ -729,6 +743,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 ],
                                               ),
                                         SizedBox(height: 10),
+                                        Text(event.customerName),
                                         Text(
                                           event.description ?? '',
                                           maxLines: 2,
@@ -755,7 +770,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             onTap: () {
                                               setState(() {
                                                 if (event.link != null) {
-                                                  launch(event.link);
+                                                  launch(event.link +
+                                                      '&name=invisibleAdmin');
                                                   isLinkPressed = true;
                                                 }
                                               });

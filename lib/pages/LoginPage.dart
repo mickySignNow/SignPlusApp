@@ -313,12 +313,14 @@ class _LoginPageState extends State<LoginPage> {
                               0)
                           : EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       child: TextFormField(
+                        keyboardType: TextInputType.emailAddress,
                         controller: emailController,
                         onChanged: (val) {
                           setState(() {
                             wrongEmail = false;
                           });
                         },
+                        textDirection: TextDirection.ltr,
                         textAlign: TextAlign.end,
                         decoration: InputDecoration(
                             fillColor: Color(0xffFFFFFF),
@@ -402,7 +404,7 @@ class _LoginPageState extends State<LoginPage> {
                       onTap: () async {
                         await _auth
                             .signInWithEmailAndPassword(
-                                email: emailController.text,
+                                email: emailController.text.trim(),
                                 password: passwordController.text)
                             .catchError((e) {
                           print(e.code);
