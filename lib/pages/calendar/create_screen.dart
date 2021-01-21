@@ -15,6 +15,7 @@ import 'package:sign_plus/pages/tabbedPage.dart';
 import 'package:sign_plus/resources/color.dart';
 import 'package:sign_plus/models/storage.dart';
 import 'package:sign_plus/utils/Functions.dart';
+import 'package:sign_plus/utils/StaticObjects.dart';
 import 'package:sign_plus/utils/UI.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:uuid/uuid.dart';
@@ -53,13 +54,15 @@ class _CreateScreenState extends State<CreateScreen> {
 
   /// Strings to get the textEditors input
   String currentTitle;
-  String currentDesc;
+  String currentDesc = 'בחר/י כותרת לפגישה';
   String currentLocation;
   String currentEmail;
   String errorString = '';
   String date;
   String callLength = '';
+  String callDesc = '';
   String lengthDrop = 'בחר/י';
+  String descDrop = 'בחר/י כותרת לפגישה';
 
   // List<String> attendeeEmails = [];
 
@@ -72,6 +75,7 @@ class _CreateScreenState extends State<CreateScreen> {
   bool isEditingBatch = false;
   bool isEditingTitle = false;
   bool isEditingLength = false;
+  bool isEditingDesc = false;
   // bool isEditingEmail = false;
   // bool isEditingLink = false;
   bool isErrorTime = false;
@@ -191,7 +195,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       height: 20,
                     ),
                     Text(
-                      'הזינו את הפרטים כאן ומתורגמן זמין יפגש איתכם',
+                      'הזינו את הפרטים כאן ומתורגמ/נית זמי/נה ת/יפגש איתכם',
                       style: TextStyle(
                         color: Colors.black87,
                         // fontFamily: 'Raleway',
@@ -286,12 +290,12 @@ class _CreateScreenState extends State<CreateScreen> {
                             lastDate: DateTime(2022),
                             initialDate: selectedDate ?? DateTime.now(),
                           );
-                          print(date ?? 'empty date');
-                          print(DateFormat('yyyy/MM/dd').format(date));
+                          // print(DateFormat('yyyy/MM/dd').format(date));
                           // if (date != null)
                           selectedDate = date;
-                          this.date = selectedDate.toString();
                           if (date != null) {
+                            this.date =
+                                DateFormat('yyyy-MM-dd').format(selectedDate);
                             final time = await showTimePicker(
                                 context: context,
                                 initialTime: TimeOfDay.fromDateTime(
@@ -308,7 +312,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
                             return DateTimeField.combine(selectedDate, time);
                           } else {
-                            return currentValue;
+                            return DateTime.now();
                           }
                         },
                         readOnly: true,
@@ -363,7 +367,6 @@ class _CreateScreenState extends State<CreateScreen> {
                                 callLength = newValue;
                                 isEditingLength = true;
                               } else {
-                                print(newValue + 'value drop');
                                 callLength = lengthDrop;
                               }
                             });
@@ -411,6 +414,68 @@ class _CreateScreenState extends State<CreateScreen> {
                       ),
                     ),
                     SizedBox(height: 10),
+                    Container(
+                      margin: isWeb
+                          ? EdgeInsets.symmetric(
+                              horizontal: MediaQuery.of(context).size.width / 5)
+                          : EdgeInsets.only(left: 10),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: descDrop,
+                          icon: Icon(Icons.arrow_circle_up_outlined),
+                          iconSize: 24,
+                          elevation: 16,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              if (newValue != null) {
+                                descDrop = newValue;
+                                currentDesc = descDrop;
+                                isEditingDesc = true;
+                              } else {
+                                callDesc = currentDesc;
+                              }
+                            });
+                          },
+                          items: StaticObjects.descAutoFill
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    descDrop == 'בחר/י כותרת לפגישה' && isEditingDesc
+                        ? Text(
+                            'אנא הכנס/י תיאור לשיחה',
+                            style: TextStyle(
+                                color: Colors.red,
+                                decoration: TextDecoration.none),
+                          )
+                        : SizedBox(height: 10),
+                    RichText(
+                      text: TextSpan(
+                        text: 'תיאור',
+                        style: TextStyle(
+                          color: CustomColor.dark_cyan,
+                          fontFamily: 'Raleway',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: ' ',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 28,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     Container(
                       margin: isWeb
                           ? EdgeInsets.symmetric(
@@ -490,103 +555,6 @@ class _CreateScreenState extends State<CreateScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 10),
-                    RichText(
-                      text: TextSpan(
-                        text: 'תיאור',
-                        style: TextStyle(
-                          color: CustomColor.dark_cyan,
-                          fontFamily: 'Raleway',
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: ' ',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    Container(
-                      margin: isWeb
-                          ? EdgeInsets.symmetric(
-                              horizontal: MediaQuery.of(context).size.width / 5)
-                          : EdgeInsets.only(left: 10),
-                      child: TextField(
-                        textAlign: TextAlign.center,
-                        enabled: true,
-                        maxLines: null,
-                        cursorColor: CustomColor.sea_blue,
-                        focusNode: textFocusNodeDesc,
-                        controller: textControllerDesc,
-                        textCapitalization: TextCapitalization.sentences,
-                        textInputAction: TextInputAction.next,
-                        onChanged: (value) {
-                          setState(() {
-                            currentDesc = value;
-                          });
-                        },
-                        onSubmitted: (value) {
-                          textFocusNodeDesc.unfocus();
-                          FocusScope.of(context)
-                              .requestFocus(textFocusNodeLocation);
-                        },
-                        style: TextStyle(
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                        decoration: new InputDecoration(
-                          disabledBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
-                            borderSide:
-                                BorderSide(color: Colors.grey, width: 1),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(
-                                color: CustomColor.sea_blue, width: 1),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
-                            borderSide: BorderSide(
-                                color: CustomColor.dark_blue, width: 2),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
-                            borderSide:
-                                BorderSide(color: Colors.redAccent, width: 2),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(10.0)),
-                          ),
-                          contentPadding: EdgeInsets.only(
-                            left: 16,
-                            bottom: 16,
-                            top: 16,
-                            right: 16,
-                          ),
-                          hintText: 'דוגמא: שיחה לגבי לקיחת הלוואה',
-                          hintStyle: TextStyle(
-                            color: Colors.grey.withOpacity(0.6),
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
 
                     SizedBox(height: 30),
                     Container(
@@ -601,7 +569,7 @@ class _CreateScreenState extends State<CreateScreen> {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight)),
                       margin: EdgeInsets.symmetric(
-                          horizontal: MediaQuery.of(context).size.width / 3,
+                          horizontal: MediaQuery.of(context).size.width / 4,
                           vertical: 15),
                       child: InkWell(
                         onTap: isDataStorageInProgress
@@ -621,7 +589,9 @@ class _CreateScreenState extends State<CreateScreen> {
                                             selectedDate, selectedStartTime) ==
                                         '' &&
                                     currentTitle != null &&
-                                    callLength != 'בחר/י') {
+                                    callLength != 'בחר/י' &&
+                                    currentDesc != null &&
+                                    callDesc != 'בחר/י כותרת לפגישה') {
                                   int startTimeInEpoch = DateTime(
                                     selectedDate.year,
                                     selectedDate.month,
@@ -689,13 +659,17 @@ class _CreateScreenState extends State<CreateScreen> {
                                     }
 
                                     EventInfo eventInfo = EventInfo(
-                                        date: date,
+                                        date: DateTimeField.combine(
+                                                selectedDate,
+                                                TimeOfDay.fromDateTime(
+                                                    selectedStartTime))
+                                            .toString(),
                                         occupied: false,
                                         id: uuid.v4(),
                                         customerId: userId,
                                         interId: '',
-                                        title: currentTitle,
-                                        description: currentDesc ?? '',
+                                        title: currentDesc,
+                                        description: currentTitle ?? '',
                                         email: userMail,
                                         startTimeInEpoch: startTimeInEpoch,
                                         endTimeInEpoch:

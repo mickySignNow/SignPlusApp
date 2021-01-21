@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_awesome_alert_box/flutter_awesome_alert_box.dart';
@@ -15,7 +16,9 @@ import 'package:sign_plus/pages/calendar/create_screen.dart';
 import 'package:sign_plus/pages/calendar/edit_screen.dart';
 import 'package:sign_plus/resources/color.dart';
 import 'package:sign_plus/models/storage.dart' as db;
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/Functions.dart';
+import 'package:sign_plus/utils/StaticObjects.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -24,11 +27,12 @@ class DashboardScreen extends StatefulWidget {
   final String role;
   final String query;
   final String title;
-  DashboardScreen(
-      {@required this.uid,
-      @required this.role,
-      @required this.query,
-      @required this.title});
+  DashboardScreen({
+    @required this.uid,
+    @required this.role,
+    @required this.query,
+    @required this.title,
+  });
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
 }
@@ -37,10 +41,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   db.Storage storage = db.Storage();
   bool isLinkPressed = false;
   var listKey = GlobalKey();
-
+  final _auth = FirebaseAuth.instance;
   final functions = FirebaseFunctions.instance;
-
-  var customerName = '';
 
   BuildContext dialogContext;
 
@@ -94,11 +96,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  getCustomerName(String id) async {
-    bool complete = false;
-    HttpsCallable getName = functions.httpsCallable('GetCustomerNameById');
-    var name = await getName.call({'customerID': id});
-    return name.data;
+  combineLists(Map<dynamic, dynamic> list, Map<dynamic, dynamic> name) {
+    return {'list': list, 'name': name};
   }
 
   @override
@@ -146,7 +145,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ? StreamBuilder(
                   stream: dashboardQuery(widget.query, widget.role),
                   builder: (context, snapshot) {
-                    print(' snapshot  ${snapshot.data}');
                     if (snapshot.hasData) {
                       if (snapshot.data.documents.length > 0) {
                         return ListView.builder(
@@ -159,8 +157,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                               /// Event Info is class in components package go to class
                               EventInfo event = EventInfo.fromMap(eventInfo);
-
-                              print('event print $eventInfo');
 
                               DateTime startTime =
                                   DateTime.fromMillisecondsSinceEpoch(
@@ -194,9 +190,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                             if (widget.role == 'inter' &&
                                                 event.occupied == false) {
-                                              print(event.interId);
-                                              print(event.occupied);
-
                                               ConfirmAlertBox(
                                                 buttonTextForYes: 'כן',
                                                 buttonColorForYes: Colors.blue,
@@ -207,7 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                     Colors.transparent,
                                                 buttonTextColorForNo:
                                                     Colors.blue,
-                                                onPressedYes: () async {
+                                                onPressedYes: () {
                                                   List<
                                                           CalendarApi
                                                               .EventAttendee>
@@ -224,10 +217,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       .add(eventAttendee);
                                                   print(eventInfo);
 
+                                                  eventAttendee = CalendarApi
+                                                      .EventAttendee();
+
+                                                  eventAttendee.email =
+                                                      FirebaseAuth.instance
+                                                          .currentUser.email;
+
+                                                  attendeeEmails
+                                                      .add(eventAttendee);
+                                                  print(
+                                                      'calendar ${calendar.toString()}');
+                                                  print(
+                                                      'attendee emails $attendeeEmails');
                                                   calendar
                                                       .insert(
-                                                          title: eventInfo[
-                                                              'title'],
+                                                          title: event.title,
                                                           attendeeEmailList:
                                                               attendeeEmails,
                                                           shouldNotifyAttendees:
@@ -236,33 +241,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                               true,
                                                           startTime: DateTime
                                                               .fromMillisecondsSinceEpoch(
-                                                                  eventInfo[
-                                                                      'start']),
+                                                                  event
+                                                                      .startTimeInEpoch),
                                                           endTime: DateTime
                                                               .fromMillisecondsSinceEpoch(
-                                                                  eventInfo[
-                                                                      'end']))
+                                                                  event
+                                                                      .endTimeInEpoch))
                                                       .catchError((e) => print(
                                                           e + " faild inserting"))
                                                       .then((eventData) {
+                                                    Navigator.of(context,
+                                                            rootNavigator: true)
+                                                        .pop();
                                                     print(eventData['id']);
-                                                    print(eventData);
-                                                    setState(() {
+                                                    print(eventData['link']);
+                                                    setState(() async {
                                                       EventInfo eventInfoClass =
                                                           EventInfo.fromMap(
                                                               eventInfo);
                                                       print(eventInfoClass);
-                                                      storage
-                                                          .catchEvent(
-                                                              eventInfoClass,
-                                                              widget.uid,
-                                                              eventData['link'])
-                                                          .whenComplete(() => print(
-                                                              'event was caught'));
+                                                      await FirebaseConstFunctions
+                                                          .bookEvent
+                                                          .call({
+                                                        'link':
+                                                            eventData['link'],
+                                                        'eventID': event.id,
+                                                        'interID': _auth
+                                                            .currentUser.uid
+                                                      });
+
+                                                      // storage
+                                                      //     .catchEvent(
+                                                      //         eventInfoClass,
+                                                      //         widget.uid,
+                                                      //         eventData['link'])
+                                                      //     .whenComplete(() => print(
+                                                      //         'event was caught'));
                                                     });
-                                                    Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pop();
 
                                                     /// Todo: upload event to storage
                                                   }).catchError((e) {
@@ -272,7 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 context: context,
                                                 title: 'קביעת תור',
                                                 infoMessage: catchDialogText(
-                                                    DateFormat('yyyy/MM/dd')
+                                                    DateFormat('dd-MM-yyyy')
                                                         .format(DateTime.parse(
                                                             event.date)),
                                                     DateFormat('HH:mm').format(
@@ -315,25 +330,54 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                   CrossAxisAlignment.end,
                                               children: [
                                                 (eventInfo['occupied'])
-                                                    ? Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .end,
+                                                    ? Column(
                                                         children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .end,
+                                                            children: [
+                                                              Text(
+                                                                event.title,
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .end,
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontSize:
+                                                                      (width >
+                                                                              700)
+                                                                          ? 22
+                                                                          : 14,
+                                                                  fontFamily:
+                                                                      'alef',
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  // letterSpacing: 1,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
                                                           Text(
-                                                            event.title,
+                                                            (width > 700)
+                                                                ? 'שם המזמינ/ה: ' +
+                                                                    event
+                                                                        .interName
+                                                                : event.interName +
+                                                                    ' :שם המזמינ/ה',
+                                                            style: TextStyle(
+                                                                fontSize: 14,
+                                                                color: Colors
+                                                                    .black,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
                                                             textAlign:
                                                                 TextAlign.end,
-                                                            style: TextStyle(
-                                                              fontSize: 22,
-                                                              color:
-                                                                  Colors.black,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              // letterSpacing: 1,
-                                                            ),
-                                                          ),
+                                                          )
                                                         ],
                                                       )
                                                     : Row(
@@ -362,7 +406,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                               textAlign:
                                                                   TextAlign.end,
                                                               style: TextStyle(
-                                                                fontSize: 22,
+                                                                fontSize:
+                                                                    (width >
+                                                                            700)
+                                                                        ? 22
+                                                                        : 14,
+                                                                fontFamily:
+                                                                    'alef',
                                                                 color: Colors
                                                                     .black,
                                                                 fontWeight:
@@ -375,7 +425,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                         ],
                                                       ),
                                                 SizedBox(height: 10),
-                                                Text(event.email),
+                                                Text(
+                                                  (width > 700)
+                                                      ? 'שם המזמינ/ה: ' +
+                                                          event.customerName
+                                                      : event.customerName +
+                                                          ' :שם המזמינ/ה',
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: Colors.black,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                  textAlign: TextAlign.end,
+                                                ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
                                                 Text(
                                                   event.description ?? '',
                                                   maxLines: 2,
@@ -406,7 +471,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                             "customerID":
                                                                 event.interId
                                                           });
-                                                          name = getname.data;
+                                                          name =
+                                                              '&name=${getname.data}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
                                                         } else {
                                                           final getname =
                                                               await FirebaseFunctions
@@ -417,10 +483,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                             "interID":
                                                                 event.interId
                                                           });
-                                                          name = getname.data;
+                                                          name =
+                                                              '&name=${getname.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
                                                         }
-                                                        launch(event.link +
-                                                            '&name=$name');
+                                                        launch(
+                                                            event.link + name);
                                                         isLinkPressed = true;
                                                       }
                                                     },
@@ -523,14 +590,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                         );
                       }
+                    } else {
+                      return Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              CustomColor.sea_blue),
+                        ),
+                      );
                     }
-                    return Center(
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(CustomColor.sea_blue),
-                      ),
-                    );
                   },
                 )
               : FutureBuilder(
@@ -675,7 +743,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         SizedBox(
                                           height: 10,
                                         ),
-                                        Text(customerName),
+                                        // Text(
+                                        //   StaticObjects.nameAndId[event.id],
+                                        //   style: TextStyle(color: Colors.red),
+                                        // ),
                                         SizedBox(height: 10),
                                         Padding(
                                           padding: const EdgeInsets.only(

@@ -1010,14 +1010,6 @@ class _EditScreenState extends State<EditScreen> {
                                     selectedEndTime.minute,
                                   ).millisecondsSinceEpoch;
 
-                                  print(
-                                      'DIFFERENCE: ${endTimeInEpoch - startTimeInEpoch}');
-
-                                  print(
-                                      'Start Time: ${DateTime.fromMillisecondsSinceEpoch(startTimeInEpoch)}');
-                                  print(
-                                      'End Time: ${DateTime.fromMillisecondsSinceEpoch(endTimeInEpoch)}');
-
                                   if (endTimeInEpoch - startTimeInEpoch > 0) {
                                     if (_validateTitle(currentTitle) == null) {
                                       await calendarClient

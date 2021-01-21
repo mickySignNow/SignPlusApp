@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -206,7 +208,6 @@ adminTextField(
         onChanged: (value) {
           main.createState().setState(() {
             textInput = controller.text;
-            print('textInput ' + textInput);
             filled = true;
           });
         },
@@ -258,18 +259,20 @@ adminTextField(
 
 informationAlertDialog(
     BuildContext context, String message, String textButton) async {
-  return await showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        content: Text(message),
-        actions: [
-          FlatButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(textButton),
-          )
-        ],
-      );
-    },
-  );
+  Timer timer = Timer(Duration(seconds: 3), (() async {
+    return await showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: Text(message),
+          actions: [
+            FlatButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(textButton),
+            )
+          ],
+        );
+      },
+    );
+  }));
 }

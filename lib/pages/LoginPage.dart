@@ -269,16 +269,39 @@ class _LoginPageState extends State<LoginPage> {
                     //     ),
                     //   ),
                     // ),
-                    Image.asset(
-                      'images/sign+text.png',
-                      width: pageWidth / 4,
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(top: -40),
-                      child: Image.asset(
-                        'images/happytogiveService.png',
-                        width: pageWidth / 3,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Sign+',
+                          style: TextStyle(
+                              shadows: <Shadow>[
+                                Shadow(
+                                    color: Colors.black45,
+                                    offset: Offset(2, 2),
+                                    blurRadius: 2)
+                              ],
+                              fontFamily: 'alef',
+                              fontSize: 72,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueAccent),
+                        ),
+                        Text(
+                          '..לעתיד נגיש יותר',
+                          style: TextStyle(
+                              shadows: <Shadow>[
+                                Shadow(
+                                    color: Colors.black45,
+                                    offset: Offset(3, 2),
+                                    blurRadius: 2)
+                              ],
+                              fontFamily: 'alef',
+                              fontSize: 32,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.blueAccent),
+                        ),
+                      ],
                     ),
                     Container(
                       height: 45,
@@ -405,10 +428,9 @@ class _LoginPageState extends State<LoginPage> {
                         HttpsCallable getRoleById = FirebaseFunctions.instance
                             .httpsCallable('CheckUserRole');
                         var res = await getRoleById.call({'uid': userCred.uid});
-                        print(res.data);
                         if (res.data == 'inter') {
                           informationAlertDialog(
-                              context, 'אנא התחבר/י לגוגל', 'אישור');
+                              context, 'אנא התחבר/י לגוגל', '');
 
                           /// _clientID - the client of the app from google cloud platform
                           var _clientID = new ClientId(
@@ -444,10 +466,10 @@ class _LoginPageState extends State<LoginPage> {
                                 // });
 
                                 /// second sign in for connecting to firebase, silently
-                                var googleUser = await GoogleSignIn()
-                                    .signInSilently()
-                                    .catchError((e) =>
-                                        print('error signing silently' + e));
+                                // var googleUser = await GoogleSignIn()
+                                //     .signInSilently()
+                                //     .catchError((e) =>
+                                //         print('error signing silently' + e));
                                 // // await GoogleSignIn(
                                 // //         scopes: ['https://www.googleapis.com/auth/userinfo.email'])
                                 // //     .signIn();
@@ -488,7 +510,6 @@ class _LoginPageState extends State<LoginPage> {
                             print('failed connecting to google' + e);
                           }
                         } else {
-                          print('customer');
                           Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(

@@ -14,6 +14,8 @@ class EventInfo {
   DateTime creationTime;
   // final List<dynamic> attendeeEmails;
   final String email;
+  final String customerName;
+  final String interName;
 
   final int startTimeInEpoch;
   final int endTimeInEpoch;
@@ -28,6 +30,8 @@ class EventInfo {
     @required this.title,
     @required this.description,
     this.link,
+    this.customerName,
+    this.interName,
     @required this.email,
     @required this.startTimeInEpoch,
     @required this.endTimeInEpoch,
@@ -50,11 +54,13 @@ class EventInfo {
         // shouldNotifyAttendees = snapshot['should_notify'],
         // hasConfereningSupport = snapshot['has_conferencing'],
         startTimeInEpoch = snapshot['start'],
+        customerName = snapshot['customerName'],
+        interName = snapshot['interName'],
         endTimeInEpoch = snapshot['end'],
         length = snapshot['length'],
         date = snapshot['date'],
-        customerId = snapshot['customerId'],
-        interId = snapshot['interId'],
+        customerId = snapshot['customerID'],
+        interId = snapshot['interID'],
         state = snapshot['state'],
         answer = snapshot['answer'],
         creationTime = snapshot['creationTime'],
@@ -64,8 +70,8 @@ class EventInfo {
   toJson() {
     return {
       'id': id,
-      'customerId': customerId,
-      'interId': interId,
+      'customerID': customerId,
+      'interID': interId,
       'state': state,
       'answer': answer,
       'title': title,
@@ -73,6 +79,8 @@ class EventInfo {
       // 'loc': location,
       'link': link,
       'emails': email,
+      'customerName': customerName,
+      'interName': interName,
       // 'should_notify': shouldNotifyAttendees,
       // 'has_conferencing': hasConfereningSupport,
       'start': startTimeInEpoch,
@@ -81,13 +89,5 @@ class EventInfo {
       'date': date,
       'occupied': occupied,
     };
-  }
-
-  getUserNamebyId(String uid) async {
-    HttpsCallable getName =
-        FirebaseFunctions.instance.httpsCallable('GetUserNameById');
-    var res = await getName.call({'uid': uid});
-
-    return res.data;
   }
 }

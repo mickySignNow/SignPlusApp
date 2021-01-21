@@ -85,7 +85,8 @@ String catchDialogText(String date, String hour, String length) {
 }
 
 String testDateTime(DateTime date, DateTime hour) {
-  if (date.isBefore(DateTime.now()))
+  if (date.isBefore(DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day + 1)))
     return 'אנא הכנס/י תאריך עתידי';
   else {
     if (date.day == DateTime.now().day && hour.hour >= DateTime.now().hour + 2)

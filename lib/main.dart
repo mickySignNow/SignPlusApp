@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,9 @@ import 'package:sign_plus/pages/LoginPage.dart';
 import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
 import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/NavigationRoutes.dart';
+import 'package:sign_plus/utils/StaticObjects.dart';
 import 'package:sign_plus/utils/secrets.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:googleapis_auth/auth_browser.dart' as auth;
@@ -80,21 +83,20 @@ class _MyHomePageState extends State<MyHomePage> {
       print(user.uid);
 
       /// getRoleById
-      HttpsCallable getRoleById =
-          FirebaseFunctions.instance.httpsCallable("checkRoleUser");
-      var res = await getRoleById.call({'uid': user.uid});
+
+      var res =
+          await FirebaseConstFunctions.getRoleById.call({'uid': user.uid});
 
       if (res.data == 'inter') {
-        informationAlertDialog(
-            context, 'מתורגמן/נית אנא התחבר/י לגוגל', 'אישור');
+        informationAlertDialog(context, 'מתורגמן/נית אנא התחבר/י לגוגל', '');
         var _clientID =
             new ClientId(Secret.getId(), "ku6x0zAKIbXvU7X_Kx9nY8_T");
         const _scopes = const [cal.CalendarApi.CalendarScope];
-
         await auth
             .createImplicitBrowserFlow(_clientID, _scopes)
             .then((auth.BrowserOAuth2Flow flow) {
-          flow.clientViaUserConsent().then((auth.AuthClient client) async {
+          flow.clientViaUserConsent().then((auth.AuthClient client) {
+            print('main calendar fil ${cal.CalendarApi(client)}');
             CalendarClient.calendar = cal.CalendarApi(client);
 
             String adminPanelCalendarId = 'primary';
@@ -103,36 +105,36 @@ class _MyHomePageState extends State<MyHomePage> {
 
             var events = event.list(adminPanelCalendarId);
 
-            events.then((showEvents) {
-              showEvents.items.forEach((cal.Event ev) {
-                if (ev.end.dateTime.isBefore(DateTime.now())) print(ev.summary);
-              });
-            });
+            // events.then((showEvents) {
+            //   showEvents.items.forEach((cal.Event ev) {
+            //     if (!ev.end.dateTime.isBefore(DateTime.now()))
+            //       print(ev.summary);
+            //   });
+            // });
 
             /// second sign in for connecting to firebase, silently
-            final GoogleSignInAccount googleUser = await GoogleSignIn(
-                    scopes: ['https://www.googleapis.com/auth/userinfo.email'])
-                .signInSilently()
-                .whenComplete(() => print('inter logged in to google'));
-            // await GoogleSignIn(
+            // final GoogleSignInAccount googleUser = await GoogleSignIn(
             //         scopes: ['https://www.googleapis.com/auth/userinfo.email'])
-            //     .signIn();
-            // Obtain the auth details from the request
-            final GoogleSignInAuthentication googleAuth =
-                await googleUser.authentication;
+            //     .signInSilently()
+            //     .whenComplete(() => print('inter logged in to google'));
+            // // await GoogleSignIn(
+            // //         scopes: ['https://www.googleapis.com/auth/userinfo.email'])
+            // //     .signIn();
+            // // Obtain the auth details from the request
+            // final GoogleSignInAuthentication googleAuth =
+            //     await googleUser.authentication;
+            // //
+            // // // Create a new credential
+            // final GoogleAuthCredential credential =
+            //     GoogleAuthProvider.credential(
+            //   accessToken: googleAuth.accessToken,
+            //   idToken: googleAuth.idToken,
+            // );
             //
-            // // Create a new credential
-            final GoogleAuthCredential credential =
-                GoogleAuthProvider.credential(
-              accessToken: googleAuth.accessToken,
-              idToken: googleAuth.idToken,
-            );
-
-            /// sign in to firebase authentication
-            final userCredential = await _auth.signInWithCredential(credential);
-            final User user = userCredential.user;
+            // /// sign in to firebase authentication
+            // final userCredential = await _auth.signInWithCredential(credential);
+            // final User user = userCredential.user;
           }).whenComplete(() {
-            print('inter logged in');
             Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -145,8 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                settings: NavigationRoutes.mainPage,
-                builder: (con) => TabbedPage(uid: user.uid, role: res.data)));
+                builder: (con) => TabbedPage(uid: user.uid, role: 'customer')));
       }
     } else {
       Navigator.of(context).pushNamed('LoginPage');
@@ -160,12 +161,11 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   initState() {
     ///shows main screen for 2 sec and then pushes login screen
-
     Timer timer = Timer(Duration(seconds: 2), (() async {
       setState(() {
         router();
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginPage()));
+        // Navigator.pushReplacement(
+        //     context, MaterialPageRoute(builder: (context) => LoginPage()));
       });
     }));
     super.initState();

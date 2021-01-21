@@ -37,17 +37,6 @@ class CalendarClient {
     event.attendees = attendeeEmailList;
     event.location = 'https://signplus-295808.web.app/';
 
-    // ConferenceData conferenceData = ConferenceData();
-    //
-    // CreateConferenceRequest conferenceRequest = CreateConferenceRequest();
-    // conferenceRequest.requestId =
-    //     "${startTime.millisecondsSinceEpoch}-${endTime.millisecondsSinceEpoch}";
-    // print('CALENDAR CLIENT 32 req id: ' + conferenceRequest.requestId);
-    // conferenceData.createRequest = conferenceRequest;
-    // print('CALENDAR CLIENT 34  createRequest:' + conferenceData.toString());
-    //
-    // event.conferenceData = conferenceData;
-
     EventDateTime start = new EventDateTime();
     start.dateTime = startTime;
     start.timeZone = "GMT+02:00";
@@ -59,23 +48,19 @@ class CalendarClient {
     event.end = end;
 
     try {
-      print(calendar);
-
       /// calendar was init when user authenticated
       /// insert here refers to the calendar ^ and will insert the event to the calendar connected
       await calendar.events
           .insert(event, calendarId,
               conferenceDataVersion: 1, sendUpdates: "all")
           .then((value) {
-        print("Event Status: ${value.status}");
         if (value.status == "confirmed") {
           String joiningLink;
           String eventId;
 
           eventId = value.id;
 
-          joiningLink =
-              "https://signowvideo.web.app/?roomName=${DateFormat('dd-MM-yy').format(startTime)}$title}";
+          joiningLink = "https://signowvideo.web.app/?roomName=$eventId";
 
           event.location = joiningLink;
           eventData = {
@@ -83,18 +68,14 @@ class CalendarClient {
             'link': joiningLink,
             'location': joiningLink
           };
-
-          print('Event added to Google Calendar');
         } else {
-          print("Unable to add event to Google Calendar");
+          // print("Unable to add event to Google Calendar");
         }
       });
     } catch (e) {
       print('Error creating event $e');
     }
-    print(event.attendees);
-    print(event);
-    print(eventData);
+
     return eventData;
   }
 
@@ -144,7 +125,6 @@ class CalendarClient {
               conferenceDataVersion: hasConferenceSupport ? 1 : 0,
               sendUpdates: shouldNotifyAttendees ? "all" : "none")
           .then((value) {
-        print("Event Status: ${value.status}");
         if (value.status == "confirmed") {
           String joiningLink;
           String eventId;

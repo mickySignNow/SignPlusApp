@@ -13,8 +13,6 @@ class Storage {
     DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
     Map<String, dynamic> data = eventInfo.toJson();
 
-    print('DATA:\n$data');
-
     await documentReferencer.set(data).whenComplete(() {
       print("Event added to the database, id: {${eventInfo.id}}");
     }).catchError((e) => print(e));
@@ -24,8 +22,6 @@ class Storage {
     DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
 
     Map<String, dynamic> data = eventInfo.toJson();
-
-    print('DATA:\n$data');
 
     await documentReferencer.update(data).whenComplete(() {
       print("Event updated in the database, id: {${eventInfo.id}}");
@@ -38,11 +34,9 @@ class Storage {
 
     Map<String, dynamic> data = eventInfo.toJson();
 
-    print('DATA:\n$data');
-
     await documentReferencer.update({
       'occupied': true,
-      'interId': uid,
+      'interID': uid,
       'link': eventLink
     }).catchError((e) => print(e));
   }
@@ -51,15 +45,13 @@ class Storage {
     DocumentReference documentReferencer = mainCollection.doc(id);
 
     await documentReferencer.delete().catchError((e) => print(e));
-
-    print('Event deleted, id: $id');
   }
 
   Stream<QuerySnapshot> retrieveRequestEvents(String uid) {
-    print(uid);
-    Stream<QuerySnapshot> myClasses =
-        mainCollection.where('customerId', isEqualTo: uid).snapshots();
-    print(myClasses);
+    Stream<QuerySnapshot> myClasses = mainCollection
+        .where('customerID', isEqualTo: uid)
+        .where('occupied', isEqualTo: false)
+        .snapshots();
 
     return myClasses;
   }
@@ -67,11 +59,11 @@ class Storage {
   Stream<QuerySnapshot> retrieveOccupiedEvents(String uid, bool isInter) {
     Stream<QuerySnapshot> myClasses = (isInter)
         ? mainCollection
-            .where('interId', isEqualTo: uid)
+            .where('interID', isEqualTo: uid)
             // .orderBy('start')
             .snapshots()
         : mainCollection
-            .where('customerId', isEqualTo: uid)
+            .where('customerID', isEqualTo: uid)
             .where('occupied', isEqualTo: true)
             // .orderBy('start')
             .snapshots();
@@ -88,7 +80,7 @@ class Storage {
 
   Stream<QuerySnapshot> retrieveCustomerhistoryEvents(String uid) {
     Stream<QuerySnapshot> myClasses = mainCollection
-        .where('customerId', isEqualTo: uid)
+        .where('customerID', isEqualTo: uid)
         .where('date', isLessThan: DateTime.now())
         .snapshots();
     return myClasses;
@@ -96,7 +88,7 @@ class Storage {
 
   Stream<QuerySnapshot> retrieveInterhistoryEvents(String uid) {
     Stream<QuerySnapshot> myClasses = mainCollection
-        .where('interId', isEqualTo: uid)
+        .where('interID', isEqualTo: uid)
         .where('date', isLessThan: DateTime.now())
         .snapshots();
 
