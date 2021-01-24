@@ -1,10 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
 import 'package:intl/intl.dart';
-import 'package:sign_plus/components/calendar_client.dart';
-import 'package:sign_plus/components/event_info.dart';
+import 'package:sign_plus/models/calendar_client.dart';
+import 'package:sign_plus/models/event_info.dart';
 import 'package:sign_plus/resources/color.dart';
-import 'package:sign_plus/storage.dart';
+import 'package:sign_plus/models/storage.dart';
 
 class EditScreen extends StatefulWidget {
   final EventInfo event;
@@ -152,7 +153,7 @@ class _EditScreenState extends State<EditScreen> {
 
     selectedStartTime = TimeOfDay.fromDateTime(startTime);
     selectedEndTime = TimeOfDay.fromDateTime(endTime);
-    currentTitle = widget.event.name;
+    currentTitle = widget.event.title;
     currentDesc = widget.event.description;
     // currentLocation = widget.event.location;
     eventId = widget.event.id;
@@ -1009,14 +1010,6 @@ class _EditScreenState extends State<EditScreen> {
                                     selectedEndTime.minute,
                                   ).millisecondsSinceEpoch;
 
-                                  print(
-                                      'DIFFERENCE: ${endTimeInEpoch - startTimeInEpoch}');
-
-                                  print(
-                                      'Start Time: ${DateTime.fromMillisecondsSinceEpoch(startTimeInEpoch)}');
-                                  print(
-                                      'End Time: ${DateTime.fromMillisecondsSinceEpoch(endTimeInEpoch)}');
-
                                   if (endTimeInEpoch - startTimeInEpoch > 0) {
                                     if (_validateTitle(currentTitle) == null) {
                                       await calendarClient
@@ -1049,13 +1042,12 @@ class _EditScreenState extends State<EditScreen> {
 
                                         EventInfo eventInfo = EventInfo(
                                           id: eventId,
-                                          name: currentTitle,
+                                          title: currentTitle,
                                           description: currentDesc ?? '',
                                           // location: currentLocation,
                                           link: eventLink,
                                           // TODO: change email to interpreters email
-                                          attendeeEmails:
-                                              'mickykroapps@gmail.com',
+                                          email: 'mickykroapps@gmail.com',
                                           // shouldNotifyAttendees:
                                           //     shouldNofityAttendees,
                                           // hasConfereningSupport:
@@ -1065,7 +1057,10 @@ class _EditScreenState extends State<EditScreen> {
                                         );
 
                                         await storage
-                                            .updateEventData(eventInfo)
+                                            .updateEventData(
+                                                eventInfo,
+                                                FirebaseAuth
+                                                    .instance.currentUser.uid)
                                             .whenComplete(() =>
                                                 Navigator.of(context).pop())
                                             .catchError(

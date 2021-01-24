@@ -10,7 +10,7 @@ class UIDesign {
       String hintText,
       String errText) {
     return TextFormField(
-      textAlign: TextAlign.end,
+      textAlign: TextAlign.center,
       cursorColor: CustomColor.sea_blue,
       controller: textControllerDate,
       textCapitalization: TextCapitalization.characters,
