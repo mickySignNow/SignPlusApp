@@ -228,7 +228,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                                                   attendeeEmails
                                                       .add(eventAttendee);
-                                                  print(_auth.currentUser);
                                                   calendar
                                                       .insert(
                                                           title: event.title,

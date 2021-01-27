@@ -22,6 +22,8 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 class CreateScreen extends StatefulWidget {
+  // bool isEditing;
+  // CreateScreen({this.isEditing});
   @override
   _CreateScreenState createState() => _CreateScreenState();
 }
@@ -482,7 +484,7 @@ class _CreateScreenState extends State<CreateScreen> {
                               horizontal: MediaQuery.of(context).size.width / 5)
                           : EdgeInsets.only(left: 10),
                       child: TextField(
-                        textAlign: TextAlign.center,
+                        textAlign: TextAlign.end,
                         enabled: true,
                         cursorColor: CustomColor.sea_blue,
                         focusNode: textFocusNodeTitle,

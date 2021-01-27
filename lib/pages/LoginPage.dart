@@ -17,6 +17,8 @@ import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
 import 'package:sign_plus/pages/calendar/create_screen.dart';
 import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
+import 'package:sign_plus/utils/Functions.dart';
 import 'package:sign_plus/utils/GoogleSignInFunctions.dart';
 import 'package:sign_plus/utils/NavigationRoutes.dart';
 import 'package:sign_plus/utils/secrets.dart';
@@ -44,9 +46,13 @@ class _LoginPageState extends State<LoginPage> {
   /// textEditing Controllers Email Password SignIn
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final phoneController = TextEditingController();
 
   bool wrongEmail = false;
   bool wrongPassword = false;
+  bool phoneDialog = true;
+
+  String phoneError = '';
 
   // a function who provides a connection to google user
   /**
@@ -123,6 +129,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final pageWidth = MediaQuery.of(context).size.width;
+    final pageheight = MediaQuery.of(context).size.height;
     bool isWeb = (pageWidth > 700);
     //Todo: move all widgets to UI folder and create them methodically
     return Scaffold(
@@ -404,7 +411,8 @@ class _LoginPageState extends State<LoginPage> {
                       onTap: () async {
                         await _auth
                             .signInWithEmailAndPassword(
-                                email: emailController.text.trim(),
+                                email:
+                                    emailController.text.trim().toLowerCase(),
                                 password: passwordController.text)
                             .catchError((e) {
                           print(e.code);
@@ -427,114 +435,17 @@ class _LoginPageState extends State<LoginPage> {
                           });
                         });
                         final userCred = _auth.currentUser;
-                        HttpsCallable getRoleById = FirebaseFunctions.instance
-                            .httpsCallable('CheckUserRole');
-                        var res = await getRoleById.call({'uid': userCred.uid});
-                        if (res.data == 'inter') {
-                          informationAlertDialog(
-                              context, 'אנא התחבר/י לגוגל', '');
 
-                          /// _clientID - the client of the app from google cloud platform
-                          var _clientID = new ClientId(
-                              Secret.getId(), 'ku6x0zAKIbXvU7X_Kx9nY8_T');
+                        var res = await FirebaseConstFunctions.getRoleById
+                            .call({'uid': userCred.uid});
 
-                          print(_clientID);
-
-                          /// _scopes - persmissions for using the user's Calendar
-                          const _scopes = const [cal.CalendarApi.CalendarScope];
-                          try {
-                            await auth
-                                .createImplicitBrowserFlow(_clientID, _scopes)
-                                .then((auth.BrowserOAuth2Flow flow) {
-                              flow
-                                  .clientViaUserConsent()
-                                  .then((auth.AuthClient client) async {
-                                print(
-                                    client.credentials.idToken ?? 'No Client');
-                                CalendarClient.calendar =
-                                    cal.CalendarApi(client);
-
-                                String adminPanelCalendarId = 'primary';
-
-                                var event = CalendarClient.calendar.events;
-
-                                // var events = event.list(adminPanelCalendarId);
-                                //
-                                // events.then((showEvents) {
-                                //   showEvents.items.forEach((cal.Event ev) {
-                                //     print(ev.summary);
-                                //     print(ev.status);
-                                //   });
-                                // });
-
-                                /// second sign in for connecting to firebase, silently
-                                // var googleUser = await GoogleSignIn()
-                                //     .signInSilently()
-                                //     .catchError((e) =>
-                                //         print('error signing silently' + e));
-                                // // await GoogleSignIn(
-                                // //         scopes: ['https://www.googleapis.com/auth/userinfo.email'])
-                                // //     .signIn();
-                                // // Obtain the auth details from the request
-                                //
-                                // if (googleUser == null) {
-                                //   googleUser = await GoogleSignIn().signIn();
-                                // }
-                                //
-                                // final GoogleSignInAuthentication googleAuth =
-                                //     await googleUser.authentication;
-                                // //
-                                // // // Create a new credential
-                                // final GoogleAuthCredential credential =
-                                //     GoogleAuthProvider.credential(
-                                //   accessToken: googleAuth.accessToken,
-                                //   idToken: googleAuth.idToken,
-                                // );
-                                //
-                                // /// sign in to firebase authentication
-                                // final googleInterSignIn = await _auth
-                                //     .signInWithCredential(credential)
-                                //     .then((value) {
-                                //   print(value.user.email);
-                                //   print('successfully linked');
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (con) => TabbedPage(
-                                              role: res.data,
-                                              uid: _auth.currentUser.uid,
-                                            )));
-                                // }).catchError(
-                                //         (e) => print('unable to link ' + e));
-                              }).catchError((e) => print(e));
-                            });
-                          } catch (e) {
-                            print('failed connecting to google' + e);
-                          }
-                        } else {
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (con) => TabbedPage(
-                                        role: res.data,
-                                        uid: _auth.currentUser.uid,
-                                      )));
-                        }
-
-                        // await _auth
-                        //     .signInWithEmailAndPassword(
-                        //         email: emailController.text,
-                        //         password: passwordController.text)
-                        //     .then((userCred) {
-                        //   var getter = FirebaseFirestore.instance
-                        //       .collection('users')
-                        //       .doc(userCred.user.uid);
-                        //   getter.get().then((value) {
-                        //     AppUser user = AppUser.fromMap(value.data());
-                        //     print(user);
-
-                        //   });
-                        // });
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (con) => TabbedPage(
+                                      role: res.data,
+                                      uid: _auth.currentUser.uid,
+                                    )));
                       },
                       child: Container(
                         padding:
@@ -557,6 +468,149 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
+                    // Container(
+                    //   height: 45,
+                    //   margin: isWeb
+                    //       ? EdgeInsets.fromLTRB(
+                    //           MediaQuery.of(context).size.width / 4,
+                    //           16,
+                    //           MediaQuery.of(context).size.width / 4,
+                    //           0)
+                    //       : EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    //   child: TextField(
+                    //     controller: phoneController,
+                    //     onChanged: (val) {
+                    //       setState(() {
+                    //         phoneDialog = true;
+                    //         phoneError = '';
+                    //       });
+                    //     },
+                    //     textAlign: TextAlign.end,
+                    //     decoration: InputDecoration(
+                    //         fillColor: Color(0xffFFFFFF),
+                    //         suffixIcon: Icon(Icons.phone),
+                    //         hintText: 'הזנ/י מספר כאן 0541122333 ',
+                    //         hintStyle: TextStyle(fontSize: 14),
+                    //         filled: true,
+                    //         enabledBorder: OutlineInputBorder(
+                    //           borderRadius: BorderRadius.circular(30.0),
+                    //         ),
+                    //         focusedBorder: OutlineInputBorder(
+                    //           borderSide: BorderSide(color: Colors.blue),
+                    //           borderRadius: BorderRadius.circular(30.0),
+                    //         )),
+                    //   ),
+                    // ),
+                    // Text(
+                    //   phoneError,
+                    //   textAlign: TextAlign.end,
+                    //   style: TextStyle(
+                    //       decoration: TextDecoration.none, color: Colors.red),
+                    // ),
+                    //
+                    // RaisedButton(
+                    //   child: Text('התחברות פלאפון'),
+                    //   onPressed: () async {
+                    //     var verifier = RecaptchaVerifier(
+                    //       size: RecaptchaVerifierSize.compact,
+                    //       theme: RecaptchaVerifierTheme.dark,
+                    //     );
+                    //     final res = await _auth
+                    //         .signInWithPhoneNumber(
+                    //             phoneToLocal(phoneController.text), verifier)
+                    //         .catchError((e) {
+                    //       print(e.code);
+                    //       setState(() {
+                    //         switch (e.code) {
+                    //           case 'invalid-phone-number':
+                    //             phoneError = 'הוזן מספר שגוי או לא קיים במערכת';
+                    //             phoneDialog = false;
+                    //             break;
+                    //           case 'too-many-requests':
+                    //             phoneError =
+                    //                 'יותר מידי נסיונות  - אנא המתינו כמה רגעים ולאחר מכן נסו שנית או צרו קשר עם השירות';
+                    //         }
+                    //       });
+                    //     });
+                    //     (phoneDialog)
+                    //         ? showDialog(
+                    //             context: context,
+                    //             builder: (context) {
+                    //               TextEditingController controller =
+                    //                   TextEditingController();
+                    //               return AlertDialog(
+                    //                 title:
+                    //                     Text(' הזינו את הסיסמא שקיבלתם לנייד'),
+                    //                 content: Container(
+                    //                   width: pageWidth / 3,
+                    //                   height: pageheight / 4,
+                    //                   child: Column(
+                    //                     children: [
+                    //                       TextFormField(
+                    //                         controller: controller,
+                    //                       ),
+                    //                       RaisedButton(
+                    //                         child: Text('אישור'),
+                    //                         onPressed: () {
+                    //                           res
+                    //                               .confirm(controller.text)
+                    //                               .catchError((e) {
+                    //                             print(e.code);
+                    //                             setState(() {
+                    //                               switch (e) {
+                    //                                 case 'invalid-verification-code':
+                    //                                   phoneError =
+                    //                                       'קוד שגוי אנא נסו שנית';
+                    //                               }
+                    //                             });
+                    //                           }).whenComplete(() async {
+                    //                             Navigator.pop(context);
+                    //                             if (_auth.currentUser != null) {
+                    //                               print(_auth.currentUser.uid);
+                    //                               final res =
+                    //                                   await FirebaseConstFunctions
+                    //                                       .getRoleById
+                    //                                       .call({
+                    //                                 'uid': _auth.currentUser.uid
+                    //                               });
+                    //                               print(res.data);
+                    //                               if (res.data == '') {
+                    //                                 setState(() {
+                    //                                   phoneError =
+                    //                                       'משתמש לא קיים במערכת אנא פנו לsignnow';
+                    //                                 });
+                    //                               } else {
+                    //                                 Navigator.of(context)
+                    //                                     .popUntil((route) =>
+                    //                                         route.isFirst);
+                    //                                 Navigator.pushReplacement(
+                    //                                     context,
+                    //                                     MaterialPageRoute(
+                    //                                         builder: (con) =>
+                    //                                             TabbedPage(
+                    //                                               role:
+                    //                                                   'customer',
+                    //                                               uid: _auth
+                    //                                                   .currentUser
+                    //                                                   .uid,
+                    //                                             ))).catchError(
+                    //                                     (e) => print(e));
+                    //                               }
+                    //                             }
+                    //                           }).catchError((e) => print(e));
+                    //                         },
+                    //                       )
+                    //                     ],
+                    //                   ),
+                    //                 ),
+                    //               );
+                    //             },
+                    //           )
+                    //         : SizedBox(
+                    //             height: 1,
+                    //           );
+                    //   },
+                    // )
                     // Row(
                     //   children: [
                     //     InkWell(

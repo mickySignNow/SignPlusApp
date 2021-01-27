@@ -3,10 +3,11 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase/firebase.dart';
+// import 'package:firebase/firebase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:googleapis/admin/directory_v1.dart';
 import 'package:intl/intl.dart';
 import 'package:sign_plus/pages/admin/AdminPage.dart';
 import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
@@ -143,17 +144,51 @@ setAdminCustomerFunction({
   } else {
     if (email.isEmpty) {
       print('loging in via phone');
-      await auth
-          .signInWithPhoneNumber(phoneToLocal(phone))
+
+      print(phoneToLocal(phone));
+
+      var verifier = RecaptchaVerifier(
+        size: RecaptchaVerifierSize.compact,
+        theme: RecaptchaVerifierTheme.dark,
+      );
+      final res = await auth
+          .signInWithPhoneNumber(phoneToLocal(phone), verifier)
           .whenComplete(() => print('logged in by phone'))
           .catchError((e) => print(e));
+
+      await showDialog(
+        context: context,
+        builder: (context) {
+          TextEditingController controller = TextEditingController();
+          return AlertDialog(
+            content: Column(
+              children: [
+                TextFormField(
+                  controller: controller,
+                ),
+                RaisedButton(
+                  child: Text('אישור'),
+                  onPressed: () {
+                    res.confirm(controller.text).catchError((e) => print(e));
+                  },
+                )
+              ],
+            ),
+          );
+        },
+      );
+      // final AuthCredential credential = PhoneAuthProvider.getCredential(
+      //   verificationId: res.verificationId,
+      //   smsCode: ,
+      // );
+      // auth.signInWithCredential(credential).catchError((e) => print(e));
+      // UserCredential cred = await res.confirm(res.verificationId);
     } else
       await auth
           .createUserWithEmailAndPassword(email: email, password: password)
           .catchError((e) => print('failed creating user ' + e));
 
     var createUser = FirebaseFunctions.instance.httpsCallable('CreateCustomer');
-
     var data = {
       "customerID": auth.currentUser.uid,
       "cardID": password,
@@ -165,19 +200,6 @@ setAdminCustomerFunction({
       "fullName": name,
       "birthDate": birthDate,
     };
-    /*
-    "customerID": data.customerID,
-        "cardID": data.cardID,
-        "phone": data.phone,
-        "address": data.address,
-        'identityNumber': data.identityNumber,
-        'password': data.password,
-        "fullName": data.fullName,
-        "birthDate": data.birthDate,
-        "disabled": false,
-        "role": 'inter',
-        "code":data.code,
-     */
 
     print(data);
     createUser.call(data).whenComplete(() {
