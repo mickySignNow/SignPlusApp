@@ -6,6 +6,7 @@ import 'package:sign_plus/pages/LoginPage.dart';
 import 'package:sign_plus/pages/calendar/create_screen.dart';
 import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
 import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
+import 'package:sign_plus/utils/GoogleServiceAccount.dart';
 import 'package:sign_plus/utils/StaticObjects.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:http/http.dart' as http;
@@ -34,6 +35,7 @@ class _TabbedPageState extends State<TabbedPage> {
 
   @override
   void initState() {
+    GoogleServiceAccount.getClient();
     super.initState();
 
     width = MediaQuery.of(context).size.width;

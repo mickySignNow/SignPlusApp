@@ -11,6 +11,7 @@ class EventInfo {
   final String link;
   String state;
   bool answer;
+  bool isReminded = false;
   DateTime creationTime;
   // final List<dynamic> attendeeEmails;
   final String email;
@@ -32,6 +33,7 @@ class EventInfo {
     this.link,
     this.customerName,
     this.interName,
+    this.isReminded,
     @required this.email,
     @required this.startTimeInEpoch,
     @required this.endTimeInEpoch,
@@ -51,6 +53,7 @@ class EventInfo {
         title = snapshot['title'],
         link = snapshot['link'],
         email = snapshot['emails'] ?? '',
+        isReminded = snapshot['isReminded'] ?? false,
         // shouldNotifyAttendees = snapshot['should_notify'],
         // hasConfereningSupport = snapshot['has_conferencing'],
         startTimeInEpoch = snapshot['start'],
@@ -81,6 +84,7 @@ class EventInfo {
       'emails': email,
       'customerName': customerName,
       'interName': interName,
+      'isReminded': isReminded,
       // 'should_notify': shouldNotifyAttendees,
       // 'has_conferencing': hasConfereningSupport,
       'start': startTimeInEpoch,

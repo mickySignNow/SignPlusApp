@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:sign_plus/models/ODMEvent.dart';
 import 'package:sign_plus/models/event_info.dart';
 
 final CollectionReference mainCollection =
@@ -11,6 +12,16 @@ final CollectionReference mainCollection =
 class Storage {
   Future<void> storeEventData(EventInfo eventInfo, String uid) async {
     DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
+    Map<String, dynamic> data = eventInfo.toJson();
+
+    await documentReferencer.set(data).whenComplete(() {
+      print("Event added to the database, id: {${eventInfo.id}}");
+    }).catchError((e) => print(e));
+  }
+
+  Future<void> storeODMEventData(ODMEvent eventInfo, String uid) async {
+    DocumentReference documentReferencer =
+        FirebaseFirestore.instance.collection('ODM').doc(eventInfo.id);
     Map<String, dynamic> data = eventInfo.toJson();
 
     await documentReferencer.set(data).whenComplete(() {

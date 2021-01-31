@@ -618,6 +618,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : FutureBuilder(
                   future: getAllEventsAdmin(),
                   builder: (context, snapshot) {
+                    print(snapshot.data);
                     return ListView.builder(
                       itemCount: snapshot.data.length,
                       itemBuilder: (context, index) {

@@ -17,4 +17,5 @@ class FirebaseConstFunctions {
       _functions.httpsCallable('CreateCustomer');
   static HttpsCallable createInter = _functions.httpsCallable('CreateInter');
   static HttpsCallable getEvents = _functions.httpsCallable('GetAllEvents');
+  static HttpsCallable updateEvent = _functions.httpsCallable('updateEvent');
 }

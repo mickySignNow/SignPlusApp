@@ -1,3 +1,4 @@
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
@@ -6,6 +7,9 @@ import 'package:sign_plus/models/calendar_client.dart';
 import 'package:sign_plus/models/event_info.dart';
 import 'package:sign_plus/resources/color.dart';
 import 'package:sign_plus/models/storage.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
+import 'package:sign_plus/utils/Functions.dart';
+import 'package:sign_plus/utils/StaticObjects.dart';
 
 class EditScreen extends StatefulWidget {
   final EventInfo event;
@@ -34,27 +38,36 @@ class _EditScreenState extends State<EditScreen> {
   FocusNode textFocusNodeAttendee;
 
   DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedStartTime = TimeOfDay.now();
-  TimeOfDay selectedEndTime = TimeOfDay.now();
+  DateTime selectedStartTime = DateTime.now();
 
+  String date;
   String eventId;
   String currentTitle;
   String currentDesc;
   String currentLocation;
   String currentEmail;
   String errorString = '';
+  String callLength = '';
+  String callDesc = '';
+  String lengthDrop = 'בחר/י';
+  String descDrop = 'בחר/י כותרת לפגישה';
   List<calendar.EventAttendee> attendeeEmails = [];
 
   bool isEditingDate = false;
   bool isEditingStartTime = false;
-  bool isEditingEndTime = false;
-  bool isEditingBatch = false;
+  bool isEditingLength = false;
+  bool isEditingDesc = false;
   bool isEditingTitle = false;
   bool isEditingEmail = false;
   bool isEditingLink = false;
   bool isErrorTime = false;
   bool shouldNofityAttendees = false;
   bool hasConferenceSupport = false;
+
+  bool dateWasEdited = false;
+  bool lengthWasEdited = false;
+  bool titleWasEdited = false;
+  bool descWasEdited = false;
 
   bool isDataStorageInProgress = false;
   bool isDeletionInProgress = false;
@@ -70,40 +83,6 @@ class _EditScreenState extends State<EditScreen> {
       setState(() {
         selectedDate = picked;
         textControllerDate.text = DateFormat.yMMMMd().format(selectedDate);
-      });
-    }
-  }
-
-  _selectStartTime(BuildContext context) async {
-    final TimeOfDay picked = await showTimePicker(
-      context: context,
-      initialTime: selectedStartTime,
-    );
-    if (picked != null && picked != selectedStartTime) {
-      setState(() {
-        selectedStartTime = picked;
-        textControllerStartTime.text = selectedStartTime.format(context);
-      });
-    } else {
-      setState(() {
-        textControllerStartTime.text = selectedStartTime.format(context);
-      });
-    }
-  }
-
-  _selectEndTime(BuildContext context) async {
-    final TimeOfDay picked = await showTimePicker(
-      context: context,
-      initialTime: selectedEndTime,
-    );
-    if (picked != null && picked != selectedEndTime) {
-      setState(() {
-        selectedEndTime = picked;
-        textControllerEndTime.text = selectedEndTime.format(context);
-      });
-    } else {
-      setState(() {
-        textControllerEndTime.text = selectedEndTime.format(context);
       });
     }
   }
@@ -151,8 +130,7 @@ class _EditScreenState extends State<EditScreen> {
     DateTime endTime =
         DateTime.fromMillisecondsSinceEpoch(widget.event.endTimeInEpoch);
 
-    selectedStartTime = TimeOfDay.fromDateTime(startTime);
-    selectedEndTime = TimeOfDay.fromDateTime(endTime);
+    selectedStartTime = startTime;
     currentTitle = widget.event.title;
     currentDesc = widget.event.description;
     // currentLocation = widget.event.location;
@@ -172,8 +150,7 @@ class _EditScreenState extends State<EditScreen> {
 
     textControllerDate = TextEditingController(text: dateString);
     textControllerStartTime = TextEditingController(text: startString);
-    textControllerEndTime = TextEditingController(text: endString);
-    textControllerTitle = TextEditingController(text: currentTitle);
+    textControllerTitle = TextEditingController(text: widget.event.title);
     textControllerDesc = TextEditingController(text: currentDesc);
     textControllerLocation = TextEditingController(text: currentLocation);
     textControllerAttendee = TextEditingController();
@@ -186,8 +163,23 @@ class _EditScreenState extends State<EditScreen> {
     super.initState();
   }
 
+  updateEvent() async {
+    await FirebaseConstFunctions.updateEvent.call({
+      "eventID": "97c2f66a-7ed2-43de-9e11-659d4d4f22b8",
+      "updatedValues": [
+        {"key": "length", "value": 30},
+        {"key": "customerName", "value": "changed"}
+      ]
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final pageWidth = MediaQuery.of(context).size.width;
+    bool isWeb = (pageWidth > 700);
+
+    updateEvent();
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -257,33 +249,25 @@ class _EditScreenState extends State<EditScreen> {
               child: Padding(
                 padding: const EdgeInsets.only(left: 16.0, right: 16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    SizedBox(
+                      height: 20,
+                    ),
                     Text(
-                      'You can edit the event details on this page. You can also choose to notify the attendees about this change.',
+                      'הזינו את הפרטים כאן ומתורגמ/נית זמי/נה ת/יפגש איתכם',
                       style: TextStyle(
                         color: Colors.black87,
-                        fontFamily: 'Raleway',
-                        fontSize: 16,
+                        // fontFamily: 'Raleway',
+                        fontSize: isWeb ? 22 : 12,
                         fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
+                        // letterSpacing: 0.5,
                       ),
                     ),
-                    // SizedBox(height: 10),
-                    // Text(
-                    //   'You will have access to modify or remove the event afterwards.',
-                    //   style: TextStyle(
-                    //     color: Colors.grey,
-                    //     fontFamily: 'Raleway',
-                    //     fontSize: 16,
-                    //     fontWeight: FontWeight.bold,
-                    //     letterSpacing: 0.5,
-                    //   ),
-                    // ),
-                    SizedBox(height: 16.0),
+                    SizedBox(height: 15.0),
                     RichText(
                       text: TextSpan(
-                        text: 'Select Date',
+                        text: 'בחר/י תאריך ושעה',
                         style: TextStyle(
                           color: CustomColor.dark_cyan,
                           fontFamily: 'Raleway',
@@ -301,564 +285,23 @@ class _EditScreenState extends State<EditScreen> {
                           ),
                         ],
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      cursorColor: CustomColor.sea_blue,
-                      controller: textControllerDate,
-                      textCapitalization: TextCapitalization.characters,
-                      onTap: () => _selectDate(context),
-                      readOnly: true,
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      decoration: new InputDecoration(
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                              color: CustomColor.dark_blue, width: 2),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: Colors.redAccent, width: 2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        ),
-                        contentPadding: EdgeInsets.only(
-                          left: 16,
-                          bottom: 16,
-                          top: 16,
-                          right: 16,
-                        ),
-                        hintText: 'eg: September 10, 2020',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.withOpacity(0.6),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                        errorText:
-                            isEditingDate && textControllerDate.text != null
-                                ? textControllerDate.text.isNotEmpty
-                                    ? null
-                                    : 'Date can\'t be empty'
-                                : null,
-                        errorStyle: TextStyle(
-                          fontSize: 12,
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Start Time',
-                        style: TextStyle(
-                          color: CustomColor.dark_cyan,
-                          fontFamily: 'Raleway',
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      cursorColor: CustomColor.sea_blue,
-                      controller: textControllerStartTime,
-                      onTap: () => _selectStartTime(context),
-                      readOnly: true,
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      decoration: new InputDecoration(
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                              color: CustomColor.dark_blue, width: 2),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: Colors.redAccent, width: 2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        ),
-                        contentPadding: EdgeInsets.only(
-                          left: 16,
-                          bottom: 16,
-                          top: 16,
-                          right: 16,
-                        ),
-                        hintText: 'eg: 09:30 AM',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.withOpacity(0.6),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                        errorText: isEditingStartTime &&
-                                textControllerStartTime.text != null
-                            ? textControllerStartTime.text.isNotEmpty
-                                ? null
-                                : 'Start time can\'t be empty'
-                            : null,
-                        errorStyle: TextStyle(
-                          fontSize: 12,
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    RichText(
-                      text: TextSpan(
-                        text: 'End Time',
-                        style: TextStyle(
-                          color: CustomColor.dark_cyan,
-                          fontFamily: 'Raleway',
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      cursorColor: CustomColor.sea_blue,
-                      controller: textControllerEndTime,
-                      onTap: () => _selectEndTime(context),
-                      readOnly: true,
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      decoration: new InputDecoration(
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                              color: CustomColor.dark_blue, width: 2),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: Colors.redAccent, width: 2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        ),
-                        contentPadding: EdgeInsets.only(
-                          left: 16,
-                          bottom: 16,
-                          top: 16,
-                          right: 16,
-                        ),
-                        hintText: 'eg: 11:30 AM',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.withOpacity(0.6),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                        errorText: isEditingEndTime &&
-                                textControllerEndTime.text != null
-                            ? textControllerEndTime.text.isNotEmpty
-                                ? null
-                                : 'End time can\'t be empty'
-                            : null,
-                        errorStyle: TextStyle(
-                          fontSize: 12,
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Title',
-                        style: TextStyle(
-                          color: CustomColor.dark_cyan,
-                          fontFamily: 'Raleway',
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      enabled: true,
-                      cursorColor: CustomColor.sea_blue,
-                      focusNode: textFocusNodeTitle,
-                      controller: textControllerTitle,
-                      textCapitalization: TextCapitalization.words,
-                      textInputAction: TextInputAction.next,
-                      onChanged: (value) {
-                        setState(() {
-                          isEditingTitle = true;
-                          currentTitle = value;
-                        });
-                      },
-                      onSubmitted: (value) {
-                        textFocusNodeTitle.unfocus();
-                        FocusScope.of(context).requestFocus(textFocusNodeDesc);
-                      },
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      decoration: new InputDecoration(
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(color: Colors.grey, width: 1),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                              color: CustomColor.dark_blue, width: 2),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: Colors.redAccent, width: 2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        ),
-                        contentPadding: EdgeInsets.only(
-                          left: 16,
-                          bottom: 16,
-                          top: 16,
-                          right: 16,
-                        ),
-                        hintText: 'eg: Birthday party of John',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.withOpacity(0.6),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                        errorText: isEditingTitle
-                            ? _validateTitle(currentTitle)
-                            : null,
-                        errorStyle: TextStyle(
-                          fontSize: 12,
-                          color: Colors.redAccent,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Description',
-                        style: TextStyle(
-                          color: CustomColor.dark_cyan,
-                          fontFamily: 'Raleway',
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: ' ',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      enabled: true,
-                      maxLines: null,
-                      cursorColor: CustomColor.sea_blue,
-                      focusNode: textFocusNodeDesc,
-                      controller: textControllerDesc,
-                      textCapitalization: TextCapitalization.sentences,
-                      textInputAction: TextInputAction.next,
-                      onChanged: (value) {
-                        setState(() {
-                          currentDesc = value;
-                        });
-                      },
-                      onSubmitted: (value) {
-                        textFocusNodeDesc.unfocus();
-                        FocusScope.of(context)
-                            .requestFocus(textFocusNodeLocation);
-                      },
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      decoration: new InputDecoration(
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(color: Colors.grey, width: 1),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                              color: CustomColor.dark_blue, width: 2),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: Colors.redAccent, width: 2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        ),
-                        contentPadding: EdgeInsets.only(
-                          left: 16,
-                          bottom: 16,
-                          top: 16,
-                          right: 16,
-                        ),
-                        hintText: 'eg: Some information about this event',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.withOpacity(0.6),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Location',
-                        style: TextStyle(
-                          color: CustomColor.dark_cyan,
-                          fontFamily: 'Raleway',
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: ' ',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextField(
-                      enabled: true,
-                      cursorColor: CustomColor.sea_blue,
-                      focusNode: textFocusNodeLocation,
-                      controller: textControllerLocation,
-                      textCapitalization: TextCapitalization.words,
-                      textInputAction: TextInputAction.next,
-                      onChanged: (value) {
-                        setState(() {
-                          currentLocation = value;
-                        });
-                      },
-                      onSubmitted: (value) {
-                        textFocusNodeLocation.unfocus();
-                        FocusScope.of(context)
-                            .requestFocus(textFocusNodeAttendee);
-                      },
-                      style: TextStyle(
-                        color: Colors.black87,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.5,
-                      ),
-                      decoration: new InputDecoration(
-                        disabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(color: Colors.grey, width: 1),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: CustomColor.sea_blue, width: 1),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide: BorderSide(
-                              color: CustomColor.dark_blue, width: 2),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                          borderSide:
-                              BorderSide(color: Colors.redAccent, width: 2),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                        ),
-                        contentPadding: EdgeInsets.only(
-                          left: 16,
-                          bottom: 16,
-                          top: 16,
-                          right: 16,
-                        ),
-                        hintText: 'Place of the event',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.withOpacity(0.6),
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    RichText(
-                      text: TextSpan(
-                        text: 'Attendees',
-                        style: TextStyle(
-                          color: CustomColor.dark_cyan,
-                          fontFamily: 'Raleway',
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: ' ',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 28,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: PageScrollPhysics(),
-                      itemCount: attendeeEmails.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                attendeeEmails[index].email,
-                                style: TextStyle(
-                                  color: CustomColor.neon_green,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.close),
-                                onPressed: () {
-                                  setState(() {
-                                    attendeeEmails.removeAt(index);
-                                  });
-                                },
-                                color: Colors.red,
-                              ),
-                            ],
-                          ),
-                        );
-                      },
                     ),
                     SizedBox(height: 10),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: TextField(
-                            enabled: true,
-                            cursorColor: CustomColor.sea_blue,
-                            focusNode: textFocusNodeAttendee,
-                            controller: textControllerAttendee,
-                            textCapitalization: TextCapitalization.none,
-                            textInputAction: TextInputAction.done,
-                            onChanged: (value) {
-                              setState(() {
-                                currentEmail = value;
-                              });
-                            },
-                            onSubmitted: (value) {
-                              textFocusNodeAttendee.unfocus();
-                            },
-                            style: TextStyle(
-                              color: Colors.black87,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 0.5,
-                            ),
-                            decoration: new InputDecoration(
+                        Container(
+                          margin: (isWeb)
+                              ? EdgeInsets.symmetric(
+                                  horizontal:
+                                      MediaQuery.of(context).size.width / 5)
+                              : EdgeInsets.only(left: 10),
+                          child: DateTimeField(
+                            decoration: InputDecoration(
+                              hintText: 'הזנ/י תאריך ושעה רצויים',
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.0)),
+                              ),
                               disabledBorder: OutlineInputBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(10.0)),
@@ -871,101 +314,316 @@ class _EditScreenState extends State<EditScreen> {
                                 borderSide: BorderSide(
                                     color: CustomColor.sea_blue, width: 1),
                               ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                                borderSide: BorderSide(
-                                    color: CustomColor.dark_blue, width: 2),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                                borderSide: BorderSide(
-                                    color: Colors.redAccent, width: 2),
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                              ),
-                              contentPadding: EdgeInsets.only(
-                                left: 16,
-                                bottom: 16,
-                                top: 16,
-                                right: 16,
-                              ),
-                              hintText: 'Enter attendee email',
-                              hintStyle: TextStyle(
-                                color: Colors.grey.withOpacity(0.6),
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.5,
-                              ),
-                              errorText: isEditingEmail
-                                  ? _validateEmail(currentEmail)
-                                  : null,
-                              errorStyle: TextStyle(
-                                fontSize: 12,
-                                color: Colors.redAccent,
-                              ),
                             ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.check_circle,
-                            color: CustomColor.sea_blue,
-                            size: 35,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              isEditingEmail = true;
-                            });
-                            if (_validateEmail(currentEmail) == null) {
+                            resetIcon: null,
+                            onEditingComplete: () => {
                               setState(() {
-                                textFocusNodeAttendee.unfocus();
-                                calendar.EventAttendee eventAttendee =
-                                    calendar.EventAttendee();
-                                eventAttendee.email = currentEmail;
+                                textControllerDate.clear();
+                              }),
+                            },
+                            controller: textControllerDate,
+                            format: DateFormat('dd-MM-yyyy HH:mm'),
+                            textAlign: TextAlign.center,
+                            onChanged: (value) => {
+                              setState(() {
+                                widget.createState();
+                              })
+                            },
+                            enabled: true,
+                            onShowPicker: (context, currentValue) async {
+                              final date = await showDatePicker(
+                                builder: (context, child) =>
+                                    Localizations.override(
+                                  context: context,
+                                  locale: Locale('he'),
+                                  child: child,
+                                ),
+                                context: context,
+                                firstDate: selectedDate ?? DateTime.now(),
+                                lastDate: DateTime(2022),
+                                initialDate: selectedDate ?? DateTime.now(),
+                              );
+                              // print(DateFormat('yyyy/MM/dd').format(date));
+                              // if (date != null)
+                              selectedDate = date;
+                              if (date != null) {
+                                this.date = DateFormat('yyyy-MM-dd')
+                                    .format(selectedDate);
+                                final time = await showTimePicker(
+                                    context: context,
+                                    initialTime: TimeOfDay.fromDateTime(
+                                        currentValue ?? DateTime.now()),
+                                    builder: (context, child) =>
+                                        Localizations.override(
+                                          context: context,
+                                          locale: Locale('he'),
+                                          child: child,
+                                        ));
 
-                                attendeeEmails.add(eventAttendee);
+                                selectedStartTime = DateTime(
+                                    date.year,
+                                    date.month,
+                                    date.day,
+                                    time.hour,
+                                    time.minute);
 
-                                textControllerAttendee.text = '';
-                                currentEmail = null;
-                                isEditingEmail = false;
-                              });
-                            }
-                          },
+                                return DateTimeField.combine(
+                                    selectedDate, time);
+                              } else {
+                                return DateTime.now();
+                              }
+                            },
+                            readOnly: true,
+                          ),
                         ),
                       ],
                     ),
-                    Visibility(
-                      visible: attendeeEmails.isNotEmpty,
-                      child: Column(
+                    isEditingDate
+                        ? Text(
+                            testDateTime(selectedDate, selectedStartTime),
+                            style: TextStyle(
+                                color: Colors.red,
+                                decoration: TextDecoration.none),
+                          )
+                        : SizedBox(height: 10),
+                    RichText(
+                      text: TextSpan(
+                        text: 'משך שיחה',
+                        style: TextStyle(
+                          color: CustomColor.dark_cyan,
+                          fontFamily: 'Raleway',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 28,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      margin: isWeb
+                          ? EdgeInsets.symmetric(
+                              horizontal: MediaQuery.of(context).size.width / 5)
+                          : EdgeInsets.only(left: 10),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: lengthDrop,
+                          icon: Icon(Icons.arrow_circle_up_outlined),
+                          iconSize: 24,
+                          elevation: 16,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              if (newValue != null) {
+                                lengthDrop = newValue;
+                                callLength = newValue;
+                                isEditingLength = true;
+                              } else {
+                                callLength = lengthDrop;
+                              }
+                            });
+                          },
+                          items: <String>[
+                            '30' + ' דקות ',
+                            '60' + ' דקות ',
+                            'בחר/י'
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    lengthDrop == 'בחר/י' && isEditingLength
+                        ? Text(
+                            'אנא הזנ/י משך שיחה',
+                            style: TextStyle(
+                                color: Colors.red,
+                                decoration: TextDecoration.none),
+                          )
+                        : SizedBox(height: 10),
+                    RichText(
+                      text: TextSpan(
+                        text: 'כותרת',
+                        style: TextStyle(
+                          color: CustomColor.dark_cyan,
+                          fontFamily: 'Raleway',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 28,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Container(
+                      margin: isWeb
+                          ? EdgeInsets.symmetric(
+                              horizontal: MediaQuery.of(context).size.width / 5)
+                          : EdgeInsets.only(left: 10),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: descDrop,
+                          icon: Icon(Icons.arrow_circle_up_outlined),
+                          iconSize: 24,
+                          elevation: 16,
+                          onChanged: (String newValue) {
+                            setState(() {
+                              if (newValue != null) {
+                                descDrop = newValue;
+                                currentDesc = descDrop;
+                                isEditingDesc = true;
+                              } else {
+                                callDesc = currentDesc;
+                              }
+                            });
+                          },
+                          items: StaticObjects.descAutoFill
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                    descDrop == 'בחר/י כותרת לפגישה' && isEditingDesc
+                        ? Text(
+                            'אנא הכנס/י תיאור לשיחה',
+                            style: TextStyle(
+                                color: Colors.red,
+                                decoration: TextDecoration.none),
+                          )
+                        : SizedBox(height: 10),
+                    RichText(
+                      text: TextSpan(
+                        text: 'תיאור',
+                        style: TextStyle(
+                          color: CustomColor.dark_cyan,
+                          fontFamily: 'Raleway',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: ' ',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 28,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: isWeb
+                          ? EdgeInsets.symmetric(
+                              horizontal: MediaQuery.of(context).size.width / 5)
+                          : EdgeInsets.only(left: 10),
+                      child: Row(
                         children: [
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Notify attendees',
-                                style: TextStyle(
-                                  color: CustomColor.dark_cyan,
-                                  fontFamily: 'Raleway',
-                                  fontSize: 20,
+                          Flexible(
+                            child: TextField(
+                              textAlign: TextAlign.center,
+                              enabled: true,
+                              cursorColor: CustomColor.sea_blue,
+                              focusNode: textFocusNodeTitle,
+                              controller: textControllerTitle,
+                              textCapitalization: TextCapitalization.sentences,
+                              textInputAction: TextInputAction.next,
+                              onChanged: (value) {
+                                setState(() {
+                                  isEditingTitle = true;
+                                  currentTitle = value;
+                                });
+                              },
+                              onSubmitted: (value) {
+                                textFocusNodeTitle.unfocus();
+                                FocusScope.of(context)
+                                    .requestFocus(textFocusNodeDesc);
+                              },
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                              decoration: new InputDecoration(
+                                disabledBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide:
+                                      BorderSide(color: Colors.grey, width: 1),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide: BorderSide(
+                                      color: CustomColor.sea_blue, width: 1),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide: BorderSide(
+                                      color: CustomColor.dark_blue, width: 2),
+                                ),
+                                errorBorder: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                  borderSide: BorderSide(
+                                      color: Colors.redAccent, width: 2),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                contentPadding: EdgeInsets.only(
+                                  left: 16,
+                                  bottom: 16,
+                                  top: 16,
+                                  right: 16,
+                                ),
+                                hintText: 'דוגמא: תרגום לשיחה עם בנקאי',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey.withOpacity(0.6),
                                   fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
+                                ),
+                                errorText: isEditingTitle
+                                    ? _validateTitle(currentTitle)
+                                    : null,
+                                errorStyle: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.redAccent,
                                 ),
                               ),
-                              Switch(
-                                value: shouldNofityAttendees,
-                                onChanged: (value) {
-                                  setState(() {
-                                    shouldNofityAttendees = value;
-                                  });
-                                },
-                                activeColor: CustomColor.sea_blue,
-                              ),
-                            ],
+                            ),
                           ),
+                          RaisedButton(
+                            onPressed: () {
+                              setState(() {
+                                isEditingTitle = !isEditingTitle;
+                              });
+                            },
+                            child: Text(isEditingTitle ? 'בעריכה' : 'ערוך'),
+                          )
                         ],
                       ),
                     ),
@@ -992,7 +650,6 @@ class _EditScreenState extends State<EditScreen> {
 
                                 if (selectedDate != null &&
                                     selectedStartTime != null &&
-                                    selectedEndTime != null &&
                                     currentTitle != null) {
                                   int startTimeInEpoch = DateTime(
                                     selectedDate.year,
@@ -1006,8 +663,6 @@ class _EditScreenState extends State<EditScreen> {
                                     selectedDate.year,
                                     selectedDate.month,
                                     selectedDate.day,
-                                    selectedEndTime.hour,
-                                    selectedEndTime.minute,
                                   ).millisecondsSinceEpoch;
 
                                   if (endTimeInEpoch - startTimeInEpoch > 0) {
@@ -1090,8 +745,7 @@ class _EditScreenState extends State<EditScreen> {
                                   setState(() {
                                     isEditingDate = true;
                                     isEditingStartTime = true;
-                                    isEditingEndTime = true;
-                                    isEditingBatch = true;
+
                                     isEditingTitle = true;
                                     isEditingLink = true;
                                   });

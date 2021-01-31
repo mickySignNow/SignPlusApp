@@ -204,18 +204,7 @@ class _CreateScreenState extends State<CreateScreen> {
                         // letterSpacing: 0.5,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    // Text(
-                    //   'You will have access to modify or remove the event afterwards.',
-                    //   style: TextStyle(
-                    //     color: Colors.grey,
-                    //     fontFamily: 'Raleway',
-                    //     fontSize: 16,
-                    //     fontWeight: FontWeight.bold,
-                    //     letterSpacing: 0.5,
-                    //   ),
-                    // ),
-                    SizedBox(height: 16.0),
+                    SizedBox(height: 15.0),
                     RichText(
                       text: TextSpan(
                         text: 'בחר/י תאריך ושעה',
@@ -318,7 +307,6 @@ class _CreateScreenState extends State<CreateScreen> {
                         readOnly: true,
                       ),
                     ),
-
                     isEditingDate
                         ? Text(
                             testDateTime(selectedDate, selectedStartTime),
@@ -475,7 +463,6 @@ class _CreateScreenState extends State<CreateScreen> {
                         ],
                       ),
                     ),
-
                     Container(
                       margin: isWeb
                           ? EdgeInsets.symmetric(
@@ -555,7 +542,6 @@ class _CreateScreenState extends State<CreateScreen> {
                         ),
                       ),
                     ),
-
                     SizedBox(height: 30),
                     Container(
                       decoration: BoxDecoration(
