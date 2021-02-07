@@ -403,62 +403,66 @@ class _AdminPageState extends State<AdminPage> {
                             ) ??
                             Text('something was null'),
                 (widget.functionName == 'CreateCustomer')
-                    ? confirmationButton(
-                        context: context,
-                        auth: FirebaseAuth.instance,
-                        emailController: emailController,
-                        passwordController: passwordController,
-                        onTap: addPressed
-                            ? () {
-                                addPressed = false;
-                                password = passwordController.text;
-                                email = emailController.text;
-                                address = addressController.text;
-                                phone = phoneController.text;
-                                name = nameController.text;
-                                code = codeController.text;
-                                if (email.isEmpty ||
-                                    password.isEmpty ||
-                                    name.isEmpty ||
-                                    address.isEmpty ||
-                                    phone.isEmpty ||
-                                    code.isEmpty) {
-                                  if (email.isEmpty) {
-                                    setState(() {
-                                      filledEmail = false;
-                                    });
-                                  }
-                                  if (name.isEmpty) {
-                                    setState(() {
-                                      filledName = false;
-                                    });
-                                  }
-                                  if (address.isEmpty) {
-                                    setState(() {
-                                      filledAddress = false;
-                                    });
-                                  }
-                                  if (phone.isEmpty) {
-                                    setState(() {
-                                      filledPhone = false;
-                                    });
-                                  }
-                                }
+                    ? Row(
+                        children: [
+                          confirmationButton(
+                              context: context,
+                              auth: FirebaseAuth.instance,
+                              emailController: emailController,
+                              passwordController: passwordController,
+                              onTap: addPressed
+                                  ? () {
+                                      addPressed = false;
+                                      password = passwordController.text;
+                                      email = emailController.text;
+                                      address = addressController.text;
+                                      phone = phoneController.text;
+                                      name = nameController.text;
+                                      code = codeController.text;
+                                      if (email.isEmpty ||
+                                          password.isEmpty ||
+                                          name.isEmpty ||
+                                          address.isEmpty ||
+                                          phone.isEmpty ||
+                                          code.isEmpty) {
+                                        if (email.isEmpty) {
+                                          setState(() {
+                                            filledEmail = false;
+                                          });
+                                        }
+                                        if (name.isEmpty) {
+                                          setState(() {
+                                            filledName = false;
+                                          });
+                                        }
+                                        if (address.isEmpty) {
+                                          setState(() {
+                                            filledAddress = false;
+                                          });
+                                        }
+                                        if (phone.isEmpty) {
+                                          setState(() {
+                                            filledPhone = false;
+                                          });
+                                        }
+                                      }
 
-                                setAdminCustomerFunction(
-                                  address: address,
-                                  birthDate: birthDateString,
-                                  name: name,
-                                  phone: phone,
-                                  context: context,
-                                  auth: auth,
-                                  email: email,
-                                  password: password,
-                                  code: int.parse(code),
-                                );
-                              }
-                            : () {},
-                        text: 'הוסף')
+                                      setAdminCustomerFunction(
+                                        address: address,
+                                        birthDate: birthDateString,
+                                        name: name,
+                                        phone: phone,
+                                        context: context,
+                                        auth: auth,
+                                        email: email,
+                                        password: password,
+                                        code: int.parse(code),
+                                      );
+                                    }
+                                  : () {},
+                              text: 'הוסף'),
+                        ],
+                      )
                     : (widget.functionName == 'CreateInter')
                         ? confirmationButton(
                             context: context,

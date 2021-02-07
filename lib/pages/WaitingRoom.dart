@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:sign_plus/models/ODMEvent.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html;
 
 class WaitingRoom extends StatefulWidget {
   ODMEvent event;
@@ -50,8 +51,13 @@ class _WaitingRoomState extends State<WaitingRoom> {
     var height = MediaQuery.of(context).size.height;
     print(waiting);
     if (!waiting)
-      launch(widget.event.link +
-          '&name=אורח&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9');
+      html.window.location.href = widget.event.link +
+          '&name=${widget.event.customerName ?? 'אורח'}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
+    // html.window.open(
+    //     widget.event.link +
+    //         '&name=אורח&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9',
+    //     'video');
+
     return Scaffold(
       appBar: buildNavBar(context: context, title: 'חדר המתנה'),
       body: Column(
@@ -61,10 +67,38 @@ class _WaitingRoomState extends State<WaitingRoom> {
           SizedBox(
             height: 20,
           ),
-          Text(
-            'אנא המתן בזמן שמתורגמנית תתחבר לשיחה',
-            style: TextStyle(fontFamily: 'alef', fontWeight: FontWeight.bold),
-          ),
+          waiting
+              ? Text(
+                  'אנא המתן בזמן שמתורגמנית תתחבר לשיחה',
+                  style: TextStyle(
+                      fontFamily: 'alef', fontWeight: FontWeight.bold),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () => launch(widget.event.link +
+                          '&name=אורח&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9'),
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.blue,
+                        ),
+                        child: Text(
+                          'מענה',
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    Text(
+                      'מתורגמנית מחכה לך בצד השני ',
+                      style: TextStyle(
+                          fontFamily: 'alef', fontWeight: FontWeight.bold),
+                    )
+                  ],
+                ),
           SizedBox(
             height: 15,
           ),

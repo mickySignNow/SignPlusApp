@@ -18,4 +18,41 @@ class FirebaseConstFunctions {
   static HttpsCallable createInter = _functions.httpsCallable('CreateInter');
   static HttpsCallable getEvents = _functions.httpsCallable('GetAllEvents');
   static HttpsCallable updateEvent = _functions.httpsCallable('updateEvent');
+  static HttpsCallable getInterName =
+      _functions.httpsCallable("GetInterNameById");
+  static HttpsCallable createODMCustomer =
+      _functions.httpsCallable('CreateCustomerOnDemand');
+  static HttpsCallable createCustomerRating =
+      _functions.httpsCallable('CreateCustomerRating');
+  static HttpsCallable createODMEvent =
+      _functions.httpsCallable('CreateOnDemandEvent');
+  static HttpsCallable deleteEvent = _functions.httpsCallable('DeleteEvent');
+  static HttpsCallable deletePastEvents =
+      _functions.httpsCallable('DeletePastEvent');
+  static HttpsCallable getAllCustomers =
+      _functions.httpsCallable('GetAllCustomers');
+  static HttpsCallable getAllOccupiedEventsById =
+      _functions.httpsCallable('GetAllEventsOccupiedByCustomerId');
+  static HttpsCallable getAllNotOccupiedEventsById =
+      _functions.httpsCallable('GetAllEventsNotOccupiedByCustomerId');
+  static HttpsCallable getAllInters = _functions.httpsCallable('GetAllInters');
+  static HttpsCallable getAllOccupiedEvents =
+      _functions.httpsCallable('GetAllEventsOccupied');
+  static HttpsCallable getAllNotOccupiedEvents =
+      _functions.httpsCallable('GetAllEventsNotOccupied');
+  static HttpsCallable getEventById = _functions.httpsCallable('GetEventById');
+  static HttpsCallable getHistoryEvents =
+      _functions.httpsCallable('GetHistoryEventByUserId');
+  static HttpsCallable getPasswordByEmail =
+      _functions.httpsCallable('GetPasswordByEmail');
+  static HttpsCallable getPasswordByPhone =
+      _functions.httpsCallable('GetPasswordByPhone');
+  static HttpsCallable resetPasswordViaMailLink =
+      _functions.httpsCallable('ResetPasswordLink');
+  static HttpsCallable updatePassword =
+      _functions.httpsCallable('UpdatePassword');
+  static HttpsCallable sendEmailVerification =
+      _functions.httpsCallable('SendEmailVerification');
+  static HttpsCallable updateLastLogin =
+      _functions.httpsCallable('UpdateLastLogin');
 }

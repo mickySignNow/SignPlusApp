@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sign_plus/models/ODMEvent.dart';
 import 'package:sign_plus/models/storage.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'dart:html' as html;
 
 class OnDemandDashboard extends StatefulWidget {
   @override
@@ -27,6 +29,7 @@ class _OnDemandDashboardState extends State<OnDemandDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final _auth = FirebaseAuth.instance;
     return Scaffold(
       appBar: buildNavBar(context: context, title: 'ON DEMAND - און דמנד'),
       body: Column(
@@ -70,11 +73,13 @@ class _OnDemandDashboardState extends State<OnDemandDashboard> {
                         ),
                         trailing: RaisedButton(
                           child: Text('מענה'),
-                          onPressed: () {
+                          onPressed: () async {
                             event.catchEvent(
                                 FirebaseAuth.instance.currentUser.uid);
-                            launch(event.link +
-                                '&name=מתורגמן&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6');
+                            var name = await FirebaseConstFunctions.getInterName
+                                .call({"interID": event.interId});
+                            html.window.location.href = event.link +
+                                '&name=${name.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
                           },
                         ),
                       ),

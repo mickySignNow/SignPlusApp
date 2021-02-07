@@ -195,7 +195,7 @@ class _CreateScreenState extends State<CreateScreen> {
                       height: 20,
                     ),
                     Text(
-                      'הזינו את הפרטים כאן ומתורגמ/נית זמי/נה ת/יפגש איתכם',
+                      'להזמנת פגישה עם מתורמנית יש למלא את הפרטים הבאים: ',
                       style: TextStyle(
                         color: Colors.black87,
                         // fontFamily: 'Raleway',
@@ -694,21 +694,6 @@ class _CreateScreenState extends State<CreateScreen> {
                                         ],
                                       );
                                     }
-
-                                    // await storage
-                                    //     .storeEventData(eventInfo, userId)
-                                    //     .whenComplete(() =>
-                                    //         Navigator.pushReplacement(
-                                    //             context,
-                                    //             MaterialPageRoute(
-                                    //                 builder: (context) =>
-                                    //                     TabbedPage(
-                                    //                       uid: userId,
-                                    //                       role: 'user',
-                                    //                     ))))
-                                    //     .catchError(
-                                    //       (e) => print(e),
-                                    //     );
 
                                     setState(() {
                                       isDataStorageInProgress = false;

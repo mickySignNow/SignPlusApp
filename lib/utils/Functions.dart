@@ -10,6 +10,7 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:sign_plus/pages/admin/AdminPage.dart';
 import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/style.dart';
 
 /**
@@ -120,6 +121,40 @@ String phoneToLocal(String phone) {
   print(areaCode);
 
   return areaCode;
+}
+
+setAdminODMCustomerFunction({
+  BuildContext context,
+  FirebaseAuth auth,
+  String phone,
+  String code,
+  String fullName,
+  String password,
+  String identityNumber,
+}) async {
+  await auth
+      .signInWithPhoneNumber(phone)
+      .whenComplete(() => print('logged in by phone'))
+      .catchError((e) => print(e));
+
+  var createODMCustomer = FirebaseConstFunctions.createODMCustomer;
+  var data = {
+    "phone": phone,
+    "code": code,
+    "fullName": fullName,
+    "password": password,
+    "identityNumber": identityNumber
+  };
+
+  createODMCustomer
+      .call(data)
+      .catchError((e) => print(e))
+      .whenComplete(() => Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (con) => TabbedAdmin(
+                    initialIndex: 0,
+                  ))));
 }
 
 setAdminCustomerFunction({

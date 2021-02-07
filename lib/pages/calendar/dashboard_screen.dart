@@ -188,8 +188,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             /// Todo: edit or dialog for users event
                                           }
                                         : () {
-                                            /// Todo: authenticate to google
-
                                             if (widget.role == 'inter' &&
                                                 event.occupied == false) {
                                               ConfirmAlertBox(
@@ -280,8 +278,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                       //     .whenComplete(() => print(
                                                       //         'event was caught'));
                                                     });
-
-                                                    /// Todo: upload event to storage
                                                   }).catchError((e) {
                                                     print(e);
                                                   });

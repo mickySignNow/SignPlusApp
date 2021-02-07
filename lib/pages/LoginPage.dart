@@ -21,6 +21,7 @@ import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
 import 'package:sign_plus/pages/calendar/create_screen.dart';
 import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/GoogleSignInFunctions.dart';
 import 'package:sign_plus/utils/NavigationRoutes.dart';
 import 'package:sign_plus/utils/secrets.dart';
@@ -125,102 +126,142 @@ class _LoginPageState extends State<LoginPage> {
     Map<String, String> nameTitle = {'': ''};
     bool didChangeName = true;
     bool didChangeTitle = true;
+    bool isEditing = false;
+    final pageHeight = MediaQuery.of(context).size.height;
+    MediaQuery.of(context).viewInsets;
+    final nameNode = FocusNode();
+    final titleNode = FocusNode();
 
     await showDialog(
         context: context,
+        barrierDismissible: true,
         builder: (context) {
-          return AlertDialog(
-            title: Text('הזינו שם ונושא לקבלת מענה'),
-            content: Column(
-              children: [
-                Text(
-                  'הזינו שם ',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                TextField(
-                  onChanged: (value) {
-                    didChangeName = true;
-                    name = value;
-                  },
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    hintText: 'שם המבקש/ת',
-                  ),
-                ),
-                didChangeName
-                    ? SizedBox(
-                        height: 5,
-                      )
-                    : Text(
-                        'אנא הזינו שם',
-                        style: TextStyle(color: Colors.red),
+          return Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+            margin: EdgeInsets.only(bottom: 10),
+            child: SingleChildScrollView(
+              child: AlertDialog(
+                // insetPadding: EdgeInsets.symmetric(
+                //      vertical: isEditing   ? 0 : pageHeight / 4),
+                title: Text('הזינו שם ונושא לקבלת מענה'),
+                content: Column(
+                  children: [
+                    Text(
+                      'הזינו שם ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    TextFormField(
+                      textAlign: TextAlign.center,
+                      onChanged: (value) {
+                        setState(() {
+                          isEditing = true;
+                        });
+
+                        didChangeName = true;
+                        name = value;
+                      },
+                      onEditingComplete: () => isEditing = false,
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        hintText: 'שם המבקש/ת',
                       ),
-                Text(
-                  'הזינו תיאור לשיחה ',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                TextField(
-                  onChanged: (value) {
-                    didChangeTitle = true;
-                    title = value;
-                  },
-                  controller: titleController,
-                  decoration: InputDecoration(
-                    hintText: 'תיאור השיחה ',
-                  ),
-                ),
-                didChangeTitle
-                    ? SizedBox(
-                        height: 5,
-                      )
-                    : Text(
-                        'אנא הזינו תיאור לפגישה',
-                        style: TextStyle(color: Colors.red),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    didChangeName
+                        ? SizedBox(
+                            height: 5,
+                          )
+                        : Text(
+                            'אנא הזינו שם',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                    Text(
+                      'הזינו תיאור לשיחה ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    TextFormField(
+                      onChanged: (value) {
+                        setState(() {
+                          isEditing = true;
+                        });
+                        didChangeTitle = true;
+                        title = value;
+                      },
+                      onEditingComplete: () => isEditing = false,
+                      controller: titleController,
+                      decoration: InputDecoration(
+                        hintText: 'תיאור השיחה ',
                       ),
-                SizedBox(height: 10),
-                RaisedButton(
-                  child: Text('הזמנה'),
-                  onPressed: () {
-                    if (nameController.text != '' && name != '')
-                      nameTitle['name'] = name;
-                    else
-                      setState(() {
-                        didChangeName = false;
-                      });
-                    if (titleController.text != '' && title != '')
-                      nameTitle['title'] = title;
-                    else {
-                      setState(() {
-                        didChangeTitle = false;
-                      });
-                    }
-                    if (nameTitle['name'] != null &&
-                        nameTitle['title'] != null) {
-                      final uuid = Uuid();
-                      ODMEvent event = ODMEvent(
-                          title: nameTitle['title'],
-                          customerName: nameTitle['name'],
-                          id: uuid.v1(),
-                          state: 'pending',
-                          interId: '',
-                          link:
-                              'https://signowvideo.web.app/?roomName=ODMSignNow');
-                      Storage storage = Storage();
-                      storage.storeODMEventData(event, event.id);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (con) => WaitingRoom(event: event)));
-                    }
-                  },
-                )
-              ],
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    didChangeTitle
+                        ? SizedBox(
+                            height: 5,
+                          )
+                        : Text(
+                            'אנא הזינו תיאור לפגישה',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                    SizedBox(height: 10),
+                    RaisedButton(
+                      color: Colors.blue,
+                      textColor: Colors.white,
+                      child: Text('הזמנה'),
+                      onPressed: () {
+                        if (nameController.text != '' && name != '')
+                          nameTitle['name'] = name;
+                        else {
+                          setState(() {
+                            didChangeName = false;
+                          });
+                        }
+                        if (titleController.text != '' && title != '')
+                          nameTitle['title'] = title;
+                        else {
+                          setState(() {
+                            didChangeTitle = false;
+                          });
+                        }
+                        if (nameTitle['name'] != null &&
+                            nameTitle['title'] != null) {
+                          final uuid = Uuid();
+                          ODMEvent event = ODMEvent(
+                              title: nameTitle['title'],
+                              customerName: nameTitle['name'],
+                              id: uuid.v1(),
+                              state: 'pending',
+                              interId: '',
+                              link:
+                                  'https://signowvideo.web.app/?roomName=${uuid.v1().substring(0, 8)}');
+                          Storage storage = Storage();
+                          storage.storeODMEventData(event, event.id);
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (con) => WaitingRoom(event: event)));
+                        }
+                      },
+                    ),
+                  ],
+                ),
+                actions: [
+                  FlatButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('ביטול'),
+                  )
+                ],
+              ),
             ),
           );
         });
@@ -242,68 +283,101 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: buildNavBar(context: context, title: ''),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Stack(
+        child: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(color: Colors.grey, blurRadius: 24, spreadRadius: 24)
+            ],
+            color: Color(0xffFAFAFA).withOpacity(0.9),
+          ),
+          child: Column(
+            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey, blurRadius: 24, spreadRadius: 24)
-                  ],
-                  color: Color(0xffFAFAFA).withOpacity(0.9),
-                ),
-                child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    SizedBox(height: 30),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        /// Google signIn button
-                        // InkWell(
-                        //   onTap: () {
-                        //     setState(() {
-                        //       /// check if no checkbox pressed --> make validate false and show error
-                        //
-                        //       GoogleSignInFunctions.googleSignIn(_auth, context);
-                        //     });
-                        //   },
-                        //   child: Container(
-                        //     margin: isWeb
-                        //         ? EdgeInsets.fromLTRB(
-                        //             MediaQuery.of(context).size.width / 4,
-                        //             16,
-                        //             MediaQuery.of(context).size.width / 4,
-                        //             0)
-                        //         : EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                        //     decoration: BoxDecoration(
-                        //         borderRadius: BorderRadius.circular(25),
-                        //         color: Color(0xff004E98)),
-                        //     child: Row(
-                        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        //       children: [
-                        //         Image.asset(
-                        //           'images/googleLogo.png',
-                        //           height: 40,
-                        //         ),
-                        //         Container(
-                        //           margin: EdgeInsets.fromLTRB(0, 0, 32, 0),
-                        //           child: Text(
-                        //             'התחבר באמצעות גוגל',
-                        //             textAlign:
-                        //                 kIsWeb ? TextAlign.start : TextAlign.end,
-                        //             style: homePageText(
-                        //                 14,
-                        //                 Color(0xffFFFFFF).withOpacity(0.9),
-                        //                 FontWeight.bold),
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
-                        // ),
-                        Column(
+              SizedBox(height: 30),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  /// Google signIn button
+                  // InkWell(
+                  //   onTap: () {
+                  //     setState(() {
+                  //       /// check if no checkbox pressed --> make validate false and show error
+                  //
+                  //       GoogleSignInFunctions.googleSignIn(_auth, context);
+                  //     });
+                  //   },
+                  //   child: Container(
+                  //     margin: isWeb
+                  //         ? EdgeInsets.fromLTRB(
+                  //             MediaQuery.of(context).size.width / 4,
+                  //             16,
+                  //             MediaQuery.of(context).size.width / 4,
+                  //             0)
+                  //         : EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                  //     decoration: BoxDecoration(
+                  //         borderRadius: BorderRadius.circular(25),
+                  //         color: Color(0xff004E98)),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       children: [
+                  //         Image.asset(
+                  //           'images/googleLogo.png',
+                  //           height: 40,
+                  //         ),
+                  //         Container(
+                  //           margin: EdgeInsets.fromLTRB(0, 0, 32, 0),
+                  //           child: Text(
+                  //             'התחבר באמצעות גוגל',
+                  //             textAlign:
+                  //                 kIsWeb ? TextAlign.start : TextAlign.end,
+                  //             style: homePageText(
+                  //                 14,
+                  //                 Color(0xffFFFFFF).withOpacity(0.9),
+                  //                 FontWeight.bold),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
+                  Stack(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          InkWell(
+                            child: Container(
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 20, horizontal: 10),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 5, vertical: 10),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                color: Colors.blue,
+                              ),
+                              child: Column(
+                                children: [
+                                  Image.asset(
+                                    'images/sign+_white.png',
+                                    height: isWeb ? 100 : 20,
+                                  ),
+                                  Text(
+                                    'להזמנת שיחה ',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onTap: () {
+                              nameAndTitleODM(context);
+                            },
+                          ),
+                        ],
+                      ),
+                      Center(
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -337,252 +411,217 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ],
                         ),
-                        Container(
-                          height: 45,
-                          margin: isWeb
-                              ? EdgeInsets.fromLTRB(
-                                  MediaQuery.of(context).size.width / 4,
-                                  16,
-                                  MediaQuery.of(context).size.width / 4,
-                                  0)
-                              : EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                          child: TextFormField(
-                            keyboardType: TextInputType.emailAddress,
-                            controller: emailController,
-                            onChanged: (val) {
-                              setState(() {
-                                wrongEmail = false;
-                              });
-                            },
-                            textDirection: TextDirection.ltr,
-                            textAlign: TextAlign.end,
-                            decoration: InputDecoration(
-                                fillColor: Color(0xffFFFFFF),
-                                suffixIcon: Icon(Icons.email),
-                                filled: true,
-                                hintText: 'הזנ/י מייל כאן ',
-                                hintStyle: TextStyle(fontSize: 14),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.black),
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue),
-                                  borderRadius: BorderRadius.circular(30.0),
-                                )),
-                          ),
-                        ),
-                        Text(
-                          (wrongEmail)
-                              ? 'שם משתמש לא נכון או לא קיים במערכת'
-                              : '',
-                          style: TextStyle(
-                              decoration: TextDecoration.none,
-                              color: Colors.red),
-                        ),
-                        Container(
-                          height: 45,
-                          margin: isWeb
-                              ? EdgeInsets.fromLTRB(
-                                  MediaQuery.of(context).size.width / 4,
-                                  16,
-                                  MediaQuery.of(context).size.width / 4,
-                                  0)
-                              : EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 4),
-                          child: TextField(
-                            controller: passwordController,
-                            onChanged: (val) {
-                              setState(() {
-                                wrongPassword = false;
-                              });
-                            },
-                            textAlign: TextAlign.end,
-                            obscureText: (passwordController.text.length > 4)
-                                ? true
-                                : false,
-                            decoration: InputDecoration(
-                                fillColor: Color(0xffFFFFFF),
-                                suffixIcon: Icon(Icons.remove_red_eye),
-                                hintText: 'הזנ/י סיסמא כאן ',
-                                hintStyle: TextStyle(fontSize: 14),
-                                filled: true,
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.blue),
-                                  borderRadius: BorderRadius.circular(30.0),
-                                )),
-                          ),
-                        ),
-                        Text(
-                          (wrongPassword) ? 'סיסמא שגויה' : '',
-                          textAlign: TextAlign.end,
-                          style: TextStyle(
-                              decoration: TextDecoration.none,
-                              color: Colors.red),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 4 + 15,
-                            ),
-                            Text(
-                              'שכחתי סיסמא',
-                              // textAlign: TextAlign.end,
-                              style: homePageText(
-                                  12, Colors.lightBlue, FontWeight.normal),
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width / 4,
-                            ),
-                          ],
-                        ),
-                        InkWell(
-                          onTap: () async {
-                            await _auth
-                                .signInWithEmailAndPassword(
-                                    email: emailController.text.trim(),
-                                    password: passwordController.text.trim())
-                                .catchError((e) {
-                              print(e.code);
-                              setState(() {
-                                switch (e.code) {
-                                  case 'wrong-password':
-                                    wrongPassword = true;
-                                    break;
-                                  case 'user-not-found':
-                                    wrongEmail = true;
-                                    wrongPassword = false;
-                                    break;
-                                  case 'invalide-email':
-                                    wrongEmail = true;
-                                    wrongPassword = false;
-                                    break;
-                                  default:
-                                    print(e);
-                                }
-                              });
-                            });
-                            final userCred = _auth.currentUser;
-                            HttpsCallable getRoleById = FirebaseFunctions
-                                .instance
-                                .httpsCallable('CheckUserRole');
-                            var res =
-                                await getRoleById.call({'uid': userCred.uid});
-                            if (res.data == 'inter') {
-                              var ODM = await FirebaseFirestore.instance
-                                  .collection('inters-data')
-                                  .doc(_auth.currentUser.uid)
-                                  .get();
-                              print(ODM.data());
-                              print(ODM.data()['onDemand']);
-                              if (ODM.data()['onDemand']) {
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (co) => OnDemandDashboard()));
-                              } else {
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (con) => TabbedPage(
-                                              role: res.data,
-                                              uid: _auth.currentUser.uid,
-                                            )));
-                              }
-                            } else {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (con) => TabbedPage(
-                                            role: res.data,
-                                            uid: _auth.currentUser.uid,
-                                          )));
-                            }
-                            // await _auth
-                            //     .signInWithEmailAndPassword(
-                            //         email: emailController.text,
-                            //         password: passwordController.text)
-                            //     .then((userCred) {
-                            //   var getter = FirebaseFirestore.instance
-                            //       .collection('users')
-                            //       .doc(userCred.user.uid);
-                            //   getter.get().then((value) {
-                            //     AppUser user = AppUser.fromMap(value.data());
-                            //     print(user);
-
-                            //   });
-                            // });
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 30),
-                            margin: isWeb
-                                ? EdgeInsets.fromLTRB(
-                                    MediaQuery.of(context).size.width / 4,
-                                    16,
-                                    MediaQuery.of(context).size.width / 4,
-                                    0)
-                                : EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 10),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(25),
-                                color: Colors.blue),
-                            child: Text(
-                              'להתחברות',
-                              style: homePageText(isWeb ? 18 : 12, Colors.white,
-                                  FontWeight.bold),
-                            ),
-                          ),
-                        ),
-                        // Row(
-                        //   children: [
-                        //     InkWell(
-                        //       onTap: () => showadminPasswordDialog(
-                        //           password: '1234', context: context),
-                        //       child: Container(
-                        //         child: Text(
-                        //           'ADMIN',
-                        //           style: TextStyle(decoration: TextDecoration.none),
-                        //         ),
-                        //       ),
-                        //     )
-                        //   ],
-                        // )
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                children: [
-                  Center(
-                    child: RaisedButton(
-                      child: Text('ODM'),
-                      onPressed: () {
-                        nameAndTitleODM(context);
-                        // final uuid = Uuid();
-                        // ODMEvent event = ODMEvent(
-                        //     id: uuid.v1(),
-                        //     state: 'pending',
-                        //     interId: '',
-                        //     link:
-                        //         'https://signowvideo.web.app/?roomName=ODMSignNow');
-                        // Storage storage = Storage();
-                        // storage.storeODMEventData(event, event.id);
-                        // Navigator.pushReplacement(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //         builder: (con) => WaitingRoom(event: event)));
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 45,
+                    margin: isWeb
+                        ? EdgeInsets.fromLTRB(
+                            MediaQuery.of(context).size.width / 4,
+                            16,
+                            MediaQuery.of(context).size.width / 4,
+                            0)
+                        : EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    child: TextFormField(
+                      keyboardType: TextInputType.emailAddress,
+                      controller: emailController,
+                      onChanged: (val) {
+                        setState(() {
+                          wrongEmail = false;
+                        });
                       },
+                      textDirection: TextDirection.ltr,
+                      textAlign: TextAlign.end,
+                      decoration: InputDecoration(
+                          fillColor: Color(0xffFFFFFF),
+                          suffixIcon: Icon(Icons.email),
+                          filled: true,
+                          hintText: 'הזנ/י מייל כאן ',
+                          hintStyle: TextStyle(fontSize: 14),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                            borderRadius: BorderRadius.circular(30.0),
+                          )),
                     ),
-                  )
+                  ),
+                  Text(
+                    (wrongEmail) ? 'שם משתמש לא נכון או לא קיים במערכת' : '',
+                    style: TextStyle(
+                        decoration: TextDecoration.none, color: Colors.red),
+                  ),
+                  Container(
+                    height: 45,
+                    margin: isWeb
+                        ? EdgeInsets.fromLTRB(
+                            MediaQuery.of(context).size.width / 4,
+                            16,
+                            MediaQuery.of(context).size.width / 4,
+                            0)
+                        : EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    child: TextField(
+                      controller: passwordController,
+                      onChanged: (val) {
+                        setState(() {
+                          wrongPassword = false;
+                        });
+                      },
+                      textAlign: TextAlign.end,
+                      obscureText:
+                          (passwordController.text.length > 4) ? true : false,
+                      decoration: InputDecoration(
+                          fillColor: Color(0xffFFFFFF),
+                          suffixIcon: Icon(Icons.remove_red_eye),
+                          hintText: 'הזנ/י סיסמא כאן ',
+                          hintStyle: TextStyle(fontSize: 14),
+                          filled: true,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.blue),
+                            borderRadius: BorderRadius.circular(30.0),
+                          )),
+                    ),
+                  ),
+                  Text(
+                    (wrongPassword) ? 'סיסמא שגויה' : '',
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                        decoration: TextDecoration.none, color: Colors.red),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 4 + 15,
+                      ),
+                      Text(
+                        'שכחתי סיסמא',
+                        // textAlign: TextAlign.end,
+                        style: homePageText(
+                            12, Colors.lightBlue, FontWeight.normal),
+                      ),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 4,
+                      ),
+                    ],
+                  ),
+                  InkWell(
+                    onTap: () async {
+                      await _auth
+                          .signInWithEmailAndPassword(
+                              email: emailController.text.trim(),
+                              password: passwordController.text.trim())
+                          .catchError((e) {
+                        print(e.code);
+                        setState(() {
+                          switch (e.code) {
+                            case 'wrong-password':
+                              wrongPassword = true;
+                              break;
+                            case 'user-not-found':
+                              wrongEmail = true;
+                              wrongPassword = false;
+                              break;
+                            case 'invalide-email':
+                              wrongEmail = true;
+                              wrongPassword = false;
+                              break;
+                            default:
+                              print(e);
+                          }
+                        });
+                      });
+                      final userCred = _auth.currentUser;
+                      HttpsCallable getRoleById =
+                          FirebaseConstFunctions.getRoleById;
+                      var res = await getRoleById.call({'uid': userCred.uid});
+                      if (res.data == 'inter') {
+                        var ODM = await FirebaseFirestore.instance
+                            .collection('inters-data')
+                            .doc(_auth.currentUser.uid)
+                            .get();
+                        print(ODM.data());
+                        print(ODM.data()['onDemand']);
+                        if (ODM.data()['onDemand']) {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (co) => OnDemandDashboard()));
+                        } else {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (con) => TabbedPage(
+                                        role: res.data,
+                                        uid: _auth.currentUser.uid,
+                                      )));
+                        }
+                      } else {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (con) => TabbedPage(
+                                      role: res.data,
+                                      uid: _auth.currentUser.uid,
+                                    )));
+                      }
+                      // await _auth
+                      //     .signInWithEmailAndPassword(
+                      //         email: emailController.text,
+                      //         password: passwordController.text)
+                      //     .then((userCred) {
+                      //   var getter = FirebaseFirestore.instance
+                      //       .collection('users')
+                      //       .doc(userCred.user.uid);
+                      //   getter.get().then((value) {
+                      //     AppUser user = AppUser.fromMap(value.data());
+                      //     print(user);
+
+                      //   });
+                      // });
+                    },
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                      margin: isWeb
+                          ? EdgeInsets.fromLTRB(
+                              MediaQuery.of(context).size.width / 4,
+                              16,
+                              MediaQuery.of(context).size.width / 4,
+                              0)
+                          : EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          color: Colors.blue),
+                      child: Text(
+                        'להתחברות',
+                        style: homePageText(
+                            isWeb ? 18 : 12, Colors.white, FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  // Row(
+                  //   children: [
+                  //     InkWell(
+                  //       onTap: () => showadminPasswordDialog(
+                  //           password: '1234', context: context),
+                  //       child: Container(
+                  //         child: Text(
+                  //           'ADMIN',
+                  //           style: TextStyle(decoration: TextDecoration.none),
+                  //         ),
+                  //       ),
+                  //     )
+                  //   ],
+                  // )
                 ],
-              )
+              ),
             ],
           ),
         ),

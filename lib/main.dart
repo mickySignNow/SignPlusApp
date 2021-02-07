@@ -16,6 +16,7 @@ import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
 import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
 import 'package:sign_plus/pages/calendar/edit_screen.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
+import 'package:sign_plus/pages/videoCallWeb.dart';
 import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/NavigationRoutes.dart';
 import 'package:sign_plus/utils/StaticObjects.dart';
@@ -134,6 +135,8 @@ class _MyHomePageState extends State<MyHomePage> {
         router();
       });
     }));
+    // Navigator.pushReplacement(
+    //     context, MaterialPageRoute(builder: (con) => VideoCallWeb()));
     super.initState();
   }
 
