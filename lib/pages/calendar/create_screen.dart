@@ -14,6 +14,7 @@ import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
 import 'package:sign_plus/resources/color.dart';
 import 'package:sign_plus/models/storage.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/Functions.dart';
 import 'package:sign_plus/utils/StaticObjects.dart';
 import 'package:sign_plus/utils/UI.dart';
@@ -668,8 +669,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                         creationTime: DateTime.now());
 
                                     HttpsCallable createEvent =
-                                        FirebaseFunctions.instance
-                                            .httpsCallable('CreateEvent');
+                                        FirebaseConstFunctions.createEvent;
                                     final eventLeft = await createEvent
                                         .call(eventInfo.toJson())
                                         .catchError((e) => print(e));

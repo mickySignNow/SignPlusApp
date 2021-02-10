@@ -55,4 +55,6 @@ class FirebaseConstFunctions {
       _functions.httpsCallable('SendEmailVerification');
   static HttpsCallable updateLastLogin =
       _functions.httpsCallable('UpdateLastLogin');
+  static HttpsCallable interBookEventOnDemand =
+      _functions.httpsCallable('InterBookEventOnDemand');
 }

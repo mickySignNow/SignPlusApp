@@ -18,24 +18,24 @@ class _WaitingRoomState extends State<WaitingRoom> {
   @override
   void initState() {
     waitingListener();
-    print(widget.event.orderTime);
 
     super.initState();
   }
 
   waitingListener() {
+    print(widget.event.link);
     FirebaseFirestore.instance
-        .collection('ODM')
-        .where('id', isEqualTo: widget.event.id)
+        .collection('on-demand-events')
+        .where('link', isEqualTo: widget.event.link.trim())
         .snapshots()
         .listen((data) {
-      print(data);
-      print(data.docs.first['state']);
+      print(data.docs);
       data.docChanges.forEach((element) {
-        setState(() {
-          print(element.type);
-          if (element.type == DocumentChangeType.modified) waiting = false;
-        });
+        if (element.type == DocumentChangeType.modified)
+          setState(() {
+            print(element.type);
+            waiting = false;
+          });
       });
     });
   }
@@ -50,9 +50,11 @@ class _WaitingRoomState extends State<WaitingRoom> {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
     print(waiting);
-    if (!waiting)
+    if (!waiting) {
+      print('open link');
       html.window.location.href = widget.event.link +
           '&name=${widget.event.customerName ?? 'אורח'}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
+    }
     // html.window.open(
     //     widget.event.link +
     //         '&name=אורח&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9',

@@ -42,13 +42,4 @@ class CustomerData {
       'fullName': fullName
     };
   }
-
-  uploadCustomer(BuildContext context) {
-    DocumentReference doc =
-        FirebaseFirestore.instance.collection('customerData').doc(customerId);
-    doc.set(this.UsertoJson()).whenComplete(() => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (con) => TabbedPage(uid: customerId, role: 'customer'))));
-  }
 }

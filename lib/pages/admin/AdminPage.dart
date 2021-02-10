@@ -80,7 +80,6 @@ class _AdminPageState extends State<AdminPage> {
   @override
   Widget build(BuildContext context) {
     print(widget.functionName);
-    FirebaseConstFunctions.getRoleById.call();
     return Scaffold(
         appBar: buildNavBar(
             context: context, title: 'admin screen ${widget.adminPannel}'),

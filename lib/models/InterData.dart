@@ -58,13 +58,4 @@ class InterData {
       'score': score
     };
   }
-
-  uploadInter(BuildContext context) {
-    DocumentReference doc =
-        FirebaseFirestore.instance.collection('InterData').doc(interId);
-    doc.set(this.UsertoJson()).whenComplete(() => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (con) => TabbedPage(uid: interId, role: 'inter'))));
-  }
 }

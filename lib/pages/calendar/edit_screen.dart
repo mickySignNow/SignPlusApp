@@ -711,16 +711,16 @@ class _EditScreenState extends State<EditScreen> {
                                           endTimeInEpoch: endTimeInEpoch,
                                         );
 
-                                        await storage
-                                            .updateEventData(
-                                                eventInfo,
-                                                FirebaseAuth
-                                                    .instance.currentUser.uid)
-                                            .whenComplete(() =>
-                                                Navigator.of(context).pop())
-                                            .catchError(
-                                              (e) => print(e),
-                                            );
+                                        // await storage
+                                        //     .updateEventData(
+                                        //         eventInfo,
+                                        //         FirebaseAuth
+                                        //             .instance.currentUser.uid)
+                                        //     .whenComplete(() =>
+                                        //         Navigator.of(context).pop())
+                                        //     .catchError(
+                                        //       (e) => print(e),
+                                        //     );
                                       }).catchError(
                                         (e) => print(e),
                                       );

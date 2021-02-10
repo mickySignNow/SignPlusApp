@@ -17,9 +17,8 @@ class OnDemandDashboard extends StatefulWidget {
 class _OnDemandDashboardState extends State<OnDemandDashboard> {
   getODMEvents() {
     return FirebaseFirestore.instance
-        .collection('ODM')
+        .collection('on-demand-events')
         .where('interID', isEqualTo: '')
-        .where('state', isEqualTo: 'pending')
         .snapshots();
   }
 
@@ -29,7 +28,6 @@ class _OnDemandDashboardState extends State<OnDemandDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final _auth = FirebaseAuth.instance;
     return Scaffold(
       appBar: buildNavBar(context: context, title: 'ON DEMAND - און דמנד'),
       body: Column(
@@ -49,14 +47,13 @@ class _OnDemandDashboardState extends State<OnDemandDashboard> {
             child: StreamBuilder(
               stream: getODMEvents(),
               builder: (context, snapshot) {
-                print('Stream $snapshot');
+                print('Stream ${snapshot.data}');
                 if (snapshot.hasData) {
                   return ListView(
                       children: snapshot.data.docs.map((doc) {
-                    ODMEvent event = ODMEvent.fromMap(doc);
                     print(doc);
-                    print(event.title);
-                    print(event.customerName);
+                    ODMEvent event = ODMEvent.fromMap(doc);
+                    print(event.toJson());
                     return Card(
                       child: ListTile(
                         leading: Icon(Icons.call_sharp),
@@ -67,17 +64,16 @@ class _OnDemandDashboardState extends State<OnDemandDashboard> {
                             SizedBox(
                               height: 5,
                             ),
-                            Text(DateFormat('hh:mm')
-                                .format(DateTime.parse(doc['orderTime']))),
+                            // Text(DateFormat('hh:mm')
+                            //     .format(DateTime.parse(doc['requestTime']))),
                           ],
                         ),
                         trailing: RaisedButton(
                           child: Text('מענה'),
                           onPressed: () async {
-                            event.catchEvent(
-                                FirebaseAuth.instance.currentUser.uid);
-                            var name = await FirebaseConstFunctions.getInterName
-                                .call({"interID": event.interId});
+                            var name = await FirebaseConstFunctions
+                                .interBookEventOnDemand
+                                .call({'link': event.link});
                             html.window.location.href = event.link +
                                 '&name=${name.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
                           },

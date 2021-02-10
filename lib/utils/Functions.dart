@@ -170,14 +170,14 @@ setAdminCustomerFunction({
 }) async {
   var userCredentials;
   print('entered admin function');
-  var codeValidation =
-      FirebaseFunctions.instance.httpsCallable('CodeValidation');
+  var codeValidation = FirebaseConstFunctions.codeValidation;
   var res = await codeValidation.call({'code': code});
   if (!res.data) {
     informationAlertDialog(context, 'קוד שגוי אנא הזן קוד נכון', 'אישור');
   } else {
     if (email.isEmpty) {
       print('loging in via phone');
+
       await auth
           .signInWithPhoneNumber(phoneToLocal(phone))
           .whenComplete(() => print('logged in by phone'))
@@ -187,7 +187,7 @@ setAdminCustomerFunction({
           .createUserWithEmailAndPassword(email: email, password: password)
           .catchError((e) => print('failed creating user ' + e));
 
-    var createUser = FirebaseFunctions.instance.httpsCallable('CreateCustomer');
+    var createUser = FirebaseConstFunctions.createCustomer;
 
     var data = {
       "customerID": auth.currentUser.uid,
@@ -249,7 +249,7 @@ setAdminInterFunction({
       .then((userCred) {})
       .catchError((e) => print('failed creating user ' + e));
 
-  var createUser = FirebaseFunctions.instance.httpsCallable('CreateInter');
+  var createUser = FirebaseConstFunctions.createInter;
 
   var data = {
     'avarage-rating': null,

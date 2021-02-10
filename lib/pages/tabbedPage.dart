@@ -31,7 +31,6 @@ class _TabbedPageState extends State<TabbedPage> {
   bool isLoadingNames = true;
 
   final _auth = FirebaseAuth.instance;
-  final _functions = FirebaseFunctions.instance;
 
   @override
   void initState() {

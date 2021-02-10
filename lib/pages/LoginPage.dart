@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/serviceconsumermanagement/v1.dart';
 import 'package:googleapis_auth/auth_browser.dart' as auth;
 import 'package:googleapis_auth/auth_io.dart';
+import 'package:sign_plus/StringNDesigns/Strings.dart';
 import 'package:sign_plus/models/AppUser.dart';
 import 'package:sign_plus/models/InterData.dart';
 import 'package:sign_plus/models/ODMEvent.dart';
@@ -50,6 +51,7 @@ class _LoginPageState extends State<LoginPage> {
   /// textEditing Controllers Email Password SignIn
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final phoneController = TextEditingController();
 
   bool wrongEmail = false;
   bool wrongPassword = false;
@@ -73,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             wrongPW
                 ? Text(
-                    'אנא הזן סיסמא נכונה או לחץ בטל לחזרה',
+                    Strings.loginPageAdminWrongPW,
                     style: TextStyle(color: Colors.red),
                   )
                 : Text(''),
@@ -82,19 +84,20 @@ class _LoginPageState extends State<LoginPage> {
                 textAlign: TextAlign.center,
                 controller: passwordController,
                 decoration: InputDecoration(
-                    labelText: 'הזן סיסמא', hintText: 'ADMINS PASSWORD'),
+                    labelText: Strings.loginPageAdminTextPW,
+                    hintText: Strings.loginPageAdminHintPW),
               ),
             )
           ],
         ),
         actions: [
           new FlatButton(
-              child: const Text('בטל'),
+              child: Text(Strings.CANCEL),
               onPressed: () {
                 Navigator.pop(context);
               }),
           new FlatButton(
-              child: const Text('אישור'),
+              child: Text(Strings.APPROVE),
               onPressed: () {
                 if (passwordController.text == password) {
                   Navigator.of(context).pushNamed(
@@ -109,8 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                   //             )));
                 } else {
                   setState(() {
-                    passwordController.text =
-                        ' אנא הזן סיסמא נכונה או לחץ בטל לחזרה';
+                    passwordController.text = Strings.loginPageAdminWrongPW;
                   });
                 }
               })
@@ -143,11 +145,11 @@ class _LoginPageState extends State<LoginPage> {
               child: AlertDialog(
                 // insetPadding: EdgeInsets.symmetric(
                 //      vertical: isEditing   ? 0 : pageHeight / 4),
-                title: Text('הזינו שם ונושא לקבלת מענה'),
+                title: Text(Strings.onDemandEnterNameAndTitle),
                 content: Column(
                   children: [
                     Text(
-                      'הזינו שם ',
+                      Strings.onDemandTextEnterName,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(
@@ -166,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                       onEditingComplete: () => isEditing = false,
                       controller: nameController,
                       decoration: InputDecoration(
-                        hintText: 'שם המבקש/ת',
+                        hintText: Strings.onDemandHintEnterName,
                       ),
                     ),
                     SizedBox(
@@ -239,17 +241,16 @@ class _LoginPageState extends State<LoginPage> {
                           ODMEvent event = ODMEvent(
                               title: nameTitle['title'],
                               customerName: nameTitle['name'],
-                              id: uuid.v1(),
-                              state: 'pending',
-                              interId: '',
                               link:
                                   'https://signowvideo.web.app/?roomName=${uuid.v1().substring(0, 8)}');
-                          Storage storage = Storage();
-                          storage.storeODMEventData(event, event.id);
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (con) => WaitingRoom(event: event)));
+                          final createODMEvent =
+                              FirebaseConstFunctions.createODMEvent;
+                          createODMEvent.call(event.toJson()).whenComplete(() =>
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (con) =>
+                                          WaitingRoom(event: event))));
                         }
                       },
                     ),
@@ -494,6 +495,84 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(
                         decoration: TextDecoration.none, color: Colors.red),
                   ),
+                  TextFormField(
+                    keyboardType: TextInputType.number,
+                    controller: phoneController,
+                    // onChanged: (val) {
+                    //   setState(() {
+                    //     wrongEmail = false;
+                    //   });
+                    // },
+                    textDirection: TextDirection.ltr,
+                    textAlign: TextAlign.end,
+                    decoration: InputDecoration(
+                        fillColor: Color(0xffFFFFFF),
+                        suffixIcon: Icon(Icons.email),
+                        filled: true,
+                        hintText: 'הזן מספר ',
+                        hintStyle: TextStyle(fontSize: 14),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.blue),
+                          borderRadius: BorderRadius.circular(30.0),
+                        )),
+                  ),
+                  RaisedButton(
+                    child: Text('כניסה'),
+                    onPressed: () async {
+                      ConfirmationResult confirmation = await FirebaseAuth
+                          .instance
+                          .signInWithPhoneNumber(phoneController.text);
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          final verificationController =
+                              TextEditingController();
+                          return AlertDialog(
+                            content: Column(
+                              children: [
+                                TextFormField(
+                                  controller: verificationController,
+                                ),
+                                RaisedButton(
+                                  child: Text(
+                                    'אישור',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  onPressed: () async {
+                                    var userCredentials = await confirmation
+                                        .confirm(verificationController.text)
+                                        .catchError((e) => print(e));
+                                    if (userCredentials != null) {
+                                      var role = await FirebaseConstFunctions
+                                          .getRoleById({
+                                        'uid': FirebaseAuth
+                                            .instance.currentUser.uid
+                                      });
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (con) => TabbedPage(
+                                                    uid: FirebaseAuth.instance
+                                                        .currentUser.uid,
+                                                    role: role.data,
+                                                    initialIndex: 1,
+                                                  )));
+                                    } else {
+                                      print('something went wrong');
+                                    }
+                                  },
+                                )
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -542,6 +621,7 @@ class _LoginPageState extends State<LoginPage> {
                           FirebaseConstFunctions.getRoleById;
                       var res = await getRoleById.call({'uid': userCred.uid});
                       if (res.data == 'inter') {
+                        /// isInterOnDemand
                         var ODM = await FirebaseFirestore.instance
                             .collection('inters-data')
                             .doc(_auth.currentUser.uid)

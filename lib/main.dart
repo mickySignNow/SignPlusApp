@@ -27,6 +27,7 @@ import 'package:googleapis/calendar/v3.dart' as cal;
 import 'package:http/http.dart' as http;
 import 'package:flutter_localizations/flutter_localizations.dart';
 
+import 'StringNDesigns/Strings.dart';
 import 'pages/videoCallPhone.dart';
 
 void main() async {
@@ -168,7 +169,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 children: [
                   Center(
                       child: Text(
-                    'Sign+',
+                    Strings.launchPageSignNow,
                     style: TextStyle(
                         decoration: TextDecoration.none,
                         color: Colors.white,
@@ -176,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   )),
                   Center(
                     child: Text(
-                      'נותנים לך יד',
+                      Strings.launchPageSlogen,
                       style: TextStyle(
                           decoration: TextDecoration.none,
                           color: Colors.white,

@@ -63,14 +63,4 @@ class AppUser {
       'uid': uid
     };
   }
-
-  uploadCustomer(BuildContext context) async {
-    DocumentReference doc =
-        FirebaseFirestore.instance.collection('customerData').doc(uid);
-    await doc.set(this.AppUsertoJson()).whenComplete(() =>
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (con) => TabbedPage(uid: uid, role: 'customer'))));
-  }
 }

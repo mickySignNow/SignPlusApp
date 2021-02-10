@@ -3,6 +3,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:sign_plus/models/ODMEvent.dart';
 import 'package:sign_plus/models/event_info.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 
 final CollectionReference mainCollection =
     FirebaseFirestore.instance.collection('events');
@@ -10,47 +11,41 @@ final CollectionReference mainCollection =
 //     FirebaseFirestore.instance.collection('all Events');
 
 class Storage {
-  Future<void> storeEventData(EventInfo eventInfo, String uid) async {
-    DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
-    Map<String, dynamic> data = eventInfo.toJson();
-
-    await documentReferencer.set(data).whenComplete(() {
-      print("Event added to the database, id: {${eventInfo.id}}");
-    }).catchError((e) => print(e));
-  }
-
   Future<void> storeODMEventData(ODMEvent eventInfo, String uid) async {
-    DocumentReference documentReferencer =
-        FirebaseFirestore.instance.collection('ODM').doc(eventInfo.id);
-    Map<String, dynamic> data = eventInfo.toJson();
+    var createOnDemandEvent = FirebaseConstFunctions.createODMEvent;
+    final res = createOnDemandEvent.call(eventInfo.toJson());
 
-    await documentReferencer.set(data).whenComplete(() {
-      print("Event added to the database, id: {${eventInfo.id}}");
-    }).catchError((e) => print(e));
+    // DocumentReference documentReferencer =
+    //     FirebaseFirestore.instance.collection('ODM').doc(eventInfo.id);
+    // Map<String, dynamic> data = eventInfo.toJson();
+    //
+    // await documentReferencer.set(data).whenComplete(() {
+    //   print("Event added to the database, id: {${eventInfo.id}}");
+    // }).catchError((e) => print(e));
   }
 
-  Future<void> updateEventData(EventInfo eventInfo, String uid) async {
-    DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
+  // Future<void> updateEventData(EventInfo eventInfo, String uid) async {
+  //   DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
+  //
+  //   Map<String, dynamic> data = eventInfo.toJson();
+  //
+  //   await documentReferencer.update(data).whenComplete(() {
+  //     print("Event updated in the database, id: {${eventInfo.id}}");
+  //   }).catchError((e) => print(e));
+  // }
 
-    Map<String, dynamic> data = eventInfo.toJson();
-
-    await documentReferencer.update(data).whenComplete(() {
-      print("Event updated in the database, id: {${eventInfo.id}}");
-    }).catchError((e) => print(e));
-  }
-
-  Future<void> catchEvent(
-      EventInfo eventInfo, String uid, String eventLink) async {
-    DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
-
-    Map<String, dynamic> data = eventInfo.toJson();
-
-    await documentReferencer.update({
-      'occupied': true,
-      'interID': uid,
-      'link': eventLink
-    }).catchError((e) => print(e));
-  }
+  // Future<void> catchEvent(
+  //     EventInfo eventInfo, String uid, String eventLink) async {
+  //   DocumentReference documentReferencer = mainCollection.doc(eventInfo.id);
+  //
+  //   Map<String, dynamic> data = eventInfo.toJson();
+  //
+  //   await documentReferencer.update({
+  //     'occupied': true,
+  //     'interID': uid,
+  //     'link': eventLink
+  //   }).catchError((e) => print(e));
+  // }
 
   Future<void> deleteEvent({String id}) async {
     DocumentReference documentReferencer = mainCollection.doc(id);

@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis_auth/auth.dart';
 import 'package:sign_plus/models/calendar_client.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
+import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/secrets.dart';
 import 'package:googleapis/calendar/v3.dart' as cal;
 import 'package:googleapis_auth/auth_browser.dart' as auth;
@@ -37,8 +38,7 @@ class GoogleSignInFunctions {
     final User user = userCredential.user;
 
     if (user != null) {
-      HttpsCallable getRoleById =
-          FirebaseFunctions.instance.httpsCallable("checkRoleUser");
+      HttpsCallable getRoleById = FirebaseConstFunctions.getRoleById;
       var userKind = await getRoleById.call({'uid': user.uid});
 
       if (userKind.data == 'user')
@@ -100,8 +100,7 @@ class GoogleSignInFunctions {
                   await _auth.signInWithCredential(credential);
               final User user = userCredential.user;
               if (user != null) {
-                HttpsCallable getRoleById =
-                    FirebaseFunctions.instance.httpsCallable('CheckUserRole');
+                HttpsCallable getRoleById = FirebaseConstFunctions.getRoleById;
                 var res =
                     await getRoleById.call({'uid': _auth.currentUser.uid});
                 Navigator.pushReplacement(

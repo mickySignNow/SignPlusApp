@@ -467,10 +467,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                           if (widget.role ==
                                                               'customer') {
                                                             final getname =
-                                                                await FirebaseFunctions
-                                                                    .instance
-                                                                    .httpsCallable(
-                                                                        "GetCustomerNameById")
+                                                                await FirebaseConstFunctions
+                                                                    .getCustomerName
                                                                     .call({
                                                               "customerID":
                                                                   event.interId
@@ -479,10 +477,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                 '&name=${getname.data}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
                                                           } else {
                                                             final getname =
-                                                                await FirebaseFunctions
-                                                                    .instance
-                                                                    .httpsCallable(
-                                                                        "GetInterNameById")
+                                                                await FirebaseConstFunctions
+                                                                    .getInterName
                                                                     .call({
                                                               "interID":
                                                                   event.interId

@@ -49,10 +49,7 @@ class CalendarClient {
     print('got here');
 
     String interFirstName = 'מתורגמנית';
-    String customerFirstName = (customerName.isNotEmpty)
-        ? customerName.replaceAll(' ', '')
-        : 'customer';
-
+    List<String> customerFirstName = customerName.split('/(\s+\)/');
     print(interFirstName);
     print(customerFirstName);
     event.description = "Signow מברכת אתכם" +
@@ -65,7 +62,7 @@ class CalendarClient {
         '\n ' +
         '$customerName: ' +
         '\n' +
-        '$joiningLink&name=$customerFirstName&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
+        '$joiningLink&name=${customerFirstName.first}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
 
     EventDateTime start = new EventDateTime();
     start.dateTime = startTime;
