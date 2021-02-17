@@ -106,6 +106,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     CalendarClient calendar = CalendarClient();
     final width = MediaQuery.of(context).size.width;
     bool isWeb = (width > 700);
+    bool catching = false;
 
     return Scaffold(
       backgroundColor: Colors.white.withOpacity(0.9),
@@ -183,9 +184,45 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       : EdgeInsets.symmetric(
                                           horizontal: 10, vertical: 10),
                                   child: InkWell(
-                                    onTap: (widget.role == 'user')
+                                    onTap: (widget.role == 'customer')
                                         ? () {
-                                            /// Todo: edit or dialog for users event
+                                            ConfirmAlertBox(
+                                              buttonTextForYes: 'מחק',
+                                              buttonColorForYes: Colors.red,
+                                              buttonTextColorForYes:
+                                                  Colors.white,
+                                              buttonTextForNo: 'בטל',
+                                              buttonColorForNo:
+                                                  Colors.transparent,
+                                              buttonTextColorForNo: Colors.red,
+                                              onPressedYes: () async {
+                                                var occupied =
+                                                    await FirebaseConstFunctions
+                                                        .deleteEvent
+                                                        .call({
+                                                  'eventID': event.id
+                                                });
+                                                if (occupied.data.runtimeType !=
+                                                    bool) {
+                                                  calendar.delete(
+                                                      event.gEventId, true);
+                                                }
+                                              },
+                                              context: context,
+                                              title: 'ביטול תור',
+                                              infoMessage: catchDialogText(
+                                                  DateFormat('dd-MM-yyyy')
+                                                      .format(DateTime.parse(
+                                                          event.date)),
+                                                  DateFormat('HH:mm').format(
+                                                      DateTime.fromMillisecondsSinceEpoch(
+                                                              event
+                                                                  .startTimeInEpoch)
+                                                          .toLocal()),
+                                                  event.length.toString(),
+                                                  true),
+                                              icon: CupertinoIcons.delete,
+                                            );
                                           }
                                         : () {
                                             if (widget.role == 'inter' &&
@@ -201,6 +238,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 buttonTextColorForNo:
                                                     Colors.blue,
                                                 onPressedYes: () {
+                                                  setState(() {
+                                                    catching = true;
+                                                  });
                                                   List<
                                                           CalendarApi
                                                               .EventAttendee>
@@ -266,6 +306,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                         'link':
                                                             eventData['link'],
                                                         'eventID': event.id,
+                                                        'gEventId':
+                                                            eventData['id'],
                                                         'interID': _auth
                                                             .currentUser.uid
                                                       });
@@ -293,292 +335,333 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                                 event
                                                                     .startTimeInEpoch)
                                                             .toLocal()),
-                                                    event.length.toString()),
+                                                    event.length.toString(),
+                                                    false),
                                                 icon: CupertinoIcons.check_mark,
                                               );
                                             }
                                           },
-                                    child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      // crossAxisAlignment: CrossAxisAlignment.end,
-                                      // mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        /// Flexible
-                                        Flexible(
-                                          child: Container(
-                                            padding: EdgeInsets.only(
-                                              bottom: 16.0,
-                                              top: 16.0,
-                                              left: 16.0,
-                                              right: 16.0,
-                                            ),
-                                            color: Colors.white,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                      color: Colors.black12,
-                                                      spreadRadius: 10,
-                                                      blurRadius: 10,
-                                                      offset: Offset(0, 4)),
-                                                ]),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: [
-                                                (eventInfo['occupied'])
-                                                    ? Column(
-                                                        children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .end,
-                                                            children: [
-                                                              Text(
-                                                                event.title,
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .end,
-                                                                style:
-                                                                    TextStyle(
-                                                                  fontSize:
-                                                                      (width >
+                                    child: catching
+                                        ? Column(
+                                            children: [
+                                              Text('תפסת את הפגישה '),
+                                              Icon(CupertinoIcons.smiley),
+                                              CircularProgressIndicator(
+                                                backgroundColor: Colors.green,
+                                              )
+                                            ],
+                                          )
+                                        : Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            // crossAxisAlignment: CrossAxisAlignment.end,
+                                            // mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              /// Flexible
+                                              Flexible(
+                                                child: Container(
+                                                  padding: EdgeInsets.only(
+                                                    bottom: 16.0,
+                                                    top: 16.0,
+                                                    left: 16.0,
+                                                    right: 16.0,
+                                                  ),
+                                                  color: Colors.white,
+                                                  decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                            color:
+                                                                Colors.black12,
+                                                            spreadRadius: 10,
+                                                            blurRadius: 10,
+                                                            offset:
+                                                                Offset(0, 4)),
+                                                      ]),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment.end,
+                                                    children: [
+                                                      (eventInfo['occupied'])
+                                                          ? Column(
+                                                              children: [
+                                                                Row(
+                                                                  mainAxisAlignment:
+                                                                      MainAxisAlignment
+                                                                          .end,
+                                                                  children: [
+                                                                    Text(
+                                                                      event
+                                                                          .title,
+                                                                      textAlign:
+                                                                          TextAlign
+                                                                              .end,
+                                                                      style:
+                                                                          TextStyle(
+                                                                        fontSize: (width >
+                                                                                700)
+                                                                            ? 22
+                                                                            : 14,
+                                                                        fontFamily:
+                                                                            'alef',
+                                                                        color: Colors
+                                                                            .black,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        // letterSpacing: 1,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                Text(
+                                                                  (width > 700)
+                                                                      ? 'שם המזמינ/ה: ' +
+                                                                          event
+                                                                              .interName
+                                                                      : event.interName +
+                                                                          ' :שם המזמינ/ה',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                          14,
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                  textAlign:
+                                                                      TextAlign
+                                                                          .end,
+                                                                )
+                                                              ],
+                                                            )
+                                                          : Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Flexible(
+                                                                  flex: 1,
+                                                                  child: Text(
+                                                                    'ממתין לאישור מתורגמן',
+                                                                    style:
+                                                                        TextStyle(
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      // letterSpacing: 1,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Flexible(
+                                                                  flex: 1,
+                                                                  child: Text(
+                                                                    event.title,
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .end,
+                                                                    style:
+                                                                        TextStyle(
+                                                                      fontSize: (width >
                                                                               700)
                                                                           ? 22
                                                                           : 14,
+                                                                      fontFamily:
+                                                                          'alef',
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      // letterSpacing: 1,
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+                                                      SizedBox(height: 10),
+                                                      Text(
+                                                        (width > 700)
+                                                            ? 'שם המזמינ/ה: ' +
+                                                                event
+                                                                    .customerName
+                                                            : event.customerName +
+                                                                ' :שם המזמינ/ה',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            color: Colors.black,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
+                                                        textAlign:
+                                                            TextAlign.end,
+                                                      ),
+                                                      SizedBox(
+                                                        height: 10,
+                                                      ),
+                                                      Text(
+                                                        event.description ?? '',
+                                                        maxLines: 2,
+                                                        style: TextStyle(
+                                                          color: Colors.black38,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 10),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                top: 8.0,
+                                                                bottom: 8.0),
+                                                        child: InkWell(
+                                                          onTap: () async {
+                                                            // if (testTime(
+                                                            //     event
+                                                            //         .startTimeInEpoch,
+                                                            //     DateTime.parse(
+                                                            //         event.date))) {
+                                                            if (event.link !=
+                                                                null) {
+                                                              var name =
+                                                                  'signow';
+                                                              if (widget.role ==
+                                                                  'customer') {
+                                                                final getname =
+                                                                    await FirebaseConstFunctions
+                                                                        .getCustomerName
+                                                                        .call({
+                                                                  "customerID":
+                                                                      event
+                                                                          .interId
+                                                                });
+                                                                name =
+                                                                    '&name=${getname.data}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
+                                                              } else {
+                                                                final getname =
+                                                                    await FirebaseConstFunctions
+                                                                        .getInterName
+                                                                        .call({
+                                                                  "interID": event
+                                                                      .interId
+                                                                });
+                                                                name =
+                                                                    '&name=${getname.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
+                                                              }
+                                                              launch(
+                                                                  event.link +
+                                                                      name);
+                                                              isLinkPressed =
+                                                                  true;
+                                                            }
+                                                            // } else {
+                                                            //   informationAlertDialog(
+                                                            //       context,
+                                                            //       'אנא הכנס/י בשעה המתאימה',
+                                                            //       'אישור');
+                                                            // }
+                                                          },
+                                                          child: Text(
+                                                            event.link ?? '',
+                                                            style: TextStyle(
+                                                              color: CustomColor
+                                                                  .dark_blue
+                                                                  .withOpacity(
+                                                                      0.5),
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 16,
+                                                              letterSpacing:
+                                                                  0.5,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(height: 10),
+                                                      Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Container(
+                                                            height: 100,
+                                                            width: 5,
+                                                            color: (event
+                                                                    .occupied)
+                                                                ? CustomColor
+                                                                    .neon_green
+                                                                : Colors.red,
+                                                          ),
+                                                          SizedBox(width: 10),
+                                                          Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                dateString,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: CustomColor
+                                                                      .dark_cyan,
                                                                   fontFamily:
-                                                                      'alef',
-                                                                  color: Colors
-                                                                      .black,
+                                                                      'OpenSans',
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .bold,
-                                                                  // letterSpacing: 1,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      1.5,
                                                                 ),
                                                               ),
+                                                              Text(
+                                                                '$startTimeString',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: CustomColor
+                                                                      .dark_cyan,
+                                                                  fontFamily:
+                                                                      'OpenSans',
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      1.5,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                ' למשך ${event.length} דקות ',
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: CustomColor
+                                                                      .dark_cyan,
+                                                                  fontFamily:
+                                                                      'OpenSans',
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 16,
+                                                                  letterSpacing:
+                                                                      1.5,
+                                                                ),
+                                                              )
                                                             ],
-                                                          ),
-                                                          Text(
-                                                            (width > 700)
-                                                                ? 'שם המזמינ/ה: ' +
-                                                                    event
-                                                                        .interName
-                                                                : event.interName +
-                                                                    ' :שם המזמינ/ה',
-                                                            style: TextStyle(
-                                                                fontSize: 14,
-                                                                color: Colors
-                                                                    .black,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
-                                                            textAlign:
-                                                                TextAlign.end,
-                                                          )
-                                                        ],
-                                                      )
-                                                    : Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceBetween,
-                                                        children: [
-                                                          Flexible(
-                                                            flex: 1,
-                                                            child: Text(
-                                                              'ממתין לאישור מתורגמן',
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .black,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                // letterSpacing: 1,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                          Flexible(
-                                                            flex: 1,
-                                                            child: Text(
-                                                              event.title,
-                                                              textAlign:
-                                                                  TextAlign.end,
-                                                              style: TextStyle(
-                                                                fontSize:
-                                                                    (width >
-                                                                            700)
-                                                                        ? 22
-                                                                        : 14,
-                                                                fontFamily:
-                                                                    'alef',
-                                                                color: Colors
-                                                                    .black,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold,
-                                                                // letterSpacing: 1,
-                                                              ),
-                                                            ),
                                                           )
                                                         ],
                                                       ),
-                                                SizedBox(height: 10),
-                                                Text(
-                                                  (width > 700)
-                                                      ? 'שם המזמינ/ה: ' +
-                                                          event.customerName
-                                                      : event.customerName +
-                                                          ' :שם המזמינ/ה',
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.black,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                  textAlign: TextAlign.end,
-                                                ),
-                                                SizedBox(
-                                                  height: 10,
-                                                ),
-                                                Text(
-                                                  event.description ?? '',
-                                                  maxLines: 2,
-                                                  style: TextStyle(
-                                                    color: Colors.black38,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 16,
+                                                    ],
                                                   ),
                                                 ),
-                                                SizedBox(height: 10),
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 8.0,
-                                                          bottom: 8.0),
-                                                  child: InkWell(
-                                                    onTap: () async {
-                                                      if (testTime(
-                                                          event
-                                                              .startTimeInEpoch,
-                                                          DateTime.parse(
-                                                              event.date))) {
-                                                        if (event.link !=
-                                                            null) {
-                                                          var name = 'signow';
-                                                          if (widget.role ==
-                                                              'customer') {
-                                                            final getname =
-                                                                await FirebaseConstFunctions
-                                                                    .getCustomerName
-                                                                    .call({
-                                                              "customerID":
-                                                                  event.interId
-                                                            });
-                                                            name =
-                                                                '&name=${getname.data}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
-                                                          } else {
-                                                            final getname =
-                                                                await FirebaseConstFunctions
-                                                                    .getInterName
-                                                                    .call({
-                                                              "interID":
-                                                                  event.interId
-                                                            });
-                                                            name =
-                                                                '&name=${getname.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
-                                                          }
-                                                          launch(event.link +
-                                                              name);
-                                                          isLinkPressed = true;
-                                                        }
-                                                      } else {
-                                                        informationAlertDialog(
-                                                            context,
-                                                            'אנא הכנס/י בשעה המתאימה',
-                                                            'אישור');
-                                                      }
-                                                    },
-                                                    child: Text(
-                                                      event.link ?? '',
-                                                      style: TextStyle(
-                                                        color: CustomColor
-                                                            .dark_blue
-                                                            .withOpacity(0.5),
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 16,
-                                                        letterSpacing: 0.5,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                SizedBox(height: 10),
-                                                Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                      height: 100,
-                                                      width: 5,
-                                                      color: (event.occupied)
-                                                          ? CustomColor
-                                                              .neon_green
-                                                          : Colors.red,
-                                                    ),
-                                                    SizedBox(width: 10),
-                                                    Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          dateString,
-                                                          style: TextStyle(
-                                                            color: CustomColor
-                                                                .dark_cyan,
-                                                            fontFamily:
-                                                                'OpenSans',
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 16,
-                                                            letterSpacing: 1.5,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          '$startTimeString',
-                                                          style: TextStyle(
-                                                            color: CustomColor
-                                                                .dark_cyan,
-                                                            fontFamily:
-                                                                'OpenSans',
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 16,
-                                                            letterSpacing: 1.5,
-                                                          ),
-                                                        ),
-                                                        Text(
-                                                          ' למשך ${event.length} דקות ',
-                                                          style: TextStyle(
-                                                            color: CustomColor
-                                                                .dark_cyan,
-                                                            fontFamily:
-                                                                'OpenSans',
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 16,
-                                                            letterSpacing: 1.5,
-                                                          ),
-                                                        )
-                                                      ],
-                                                    )
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        ),
-                                      ],
-                                    ),
                                   ),
                                 ),
                               );
@@ -633,8 +716,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       ),
                                       FlatButton(
                                         child: Text('מחק'),
-                                        onPressed: () {
-                                          /// delete events
+                                        onPressed: () async {
+                                          var occupied =
+                                          await FirebaseConstFunctions
+                                              .deleteEvent
+                                              .call({
+                                            'eventID': event.id
+                                          });
+                                          if (occupied.data.runtimeType !=
+                                              bool) {
+                                            calendar.delete(
+                                                event.gEventId, true);
+                                          }
                                         },
                                       ),
                                       FlatButton(

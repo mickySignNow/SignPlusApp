@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 /// class for events to firebase and read from firebase
 class EventInfo {
   final String id;
+  String gEventId;
   final String customerId;
   final String interId;
   final String title;
@@ -49,6 +50,7 @@ class EventInfo {
   /// create instance of EventInfo and fill from a Map/dictionary
   EventInfo.fromMap(Map snapshot)
       : id = snapshot['id'] ?? '',
+        gEventId = snapshot['gEventId'] ?? '',
         description = snapshot['desc'],
         title = snapshot['title'],
         link = snapshot['link'],
@@ -86,7 +88,7 @@ class EventInfo {
       'interName': interName,
       'isReminded': isReminded,
       // 'should_notify': shouldNotifyAttendees,
-      // 'has_conferencing': hasConfereningSupport,
+      'gEventId': gEventId,
       'start': startTimeInEpoch,
       'end': endTimeInEpoch,
       'length': length,

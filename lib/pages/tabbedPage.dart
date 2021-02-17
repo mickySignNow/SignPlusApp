@@ -2,6 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_plus/pages/LogOutPage.dart';
 import 'package:sign_plus/pages/LoginPage.dart';
 import 'package:sign_plus/pages/calendar/create_screen.dart';
 import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
@@ -43,9 +44,6 @@ class _TabbedPageState extends State<TabbedPage> {
 
   @override
   Widget build(BuildContext context) {
-    html.window.onUnload.listen((event) {
-      print(event.timeStamp);
-    });
     return MaterialApp(
       home: DefaultTabController(
         initialIndex: widget.initialIndex ?? 0,
@@ -191,7 +189,7 @@ class _TabbedPageState extends State<TabbedPage> {
                   ),
             preferredSize: (width < 720)
                 ? Size(MediaQuery.of(context).size.width, 80.0)
-                : Size(MediaQuery.of(context).size.width, 40.0),
+                : Size(MediaQuery.of(context).size.width, 0.0),
           ),
           body: (width < 720)
               ? TabBarView(
@@ -238,77 +236,98 @@ class _TabbedPageState extends State<TabbedPage> {
                     children: <Widget>[
                       Expanded(
                         child: Container(
-                          child: VerticalTabs(
-                              initialIndex: widget.initialIndex ?? 0,
-                              direction: TextDirection.rtl,
-                              tabBackgroundColor: Colors.blue.withOpacity(0.3),
-                              tabTextStyle: TextStyle(color: Colors.white),
-                              tabs: (widget.role == 'customer')
-                                  ? <Tab>[
-                                      Tab(
-                                        text: 'הזמן תור',
-                                        icon: Icon(
-                                          Icons.add,
-                                        ),
-                                      ),
-                                      Tab(
-                                          text: 'תורים שנקבעו',
-                                          icon: Icon(Icons.calendar_today)),
-                                      Tab(
-                                          text: 'תורים שהוזמנו',
-                                          icon: Icon(Icons.calendar_today)),
-                                      Tab(
-                                          text: 'היסטוריית שיחות',
-                                          icon: Icon(Icons.history))
-                                    ]
-                                  : <Tab>[
-                                      Tab(
-                                          text: 'לוח הזמנות',
-                                          icon: Icon(Icons.dashboard)),
-                                      Tab(
-                                          text: 'תורים שנקבעו',
-                                          icon: Icon(Icons.calendar_today)),
-                                      Tab(
-                                          text: 'היסטוריית שיחות',
-                                          icon: Icon(Icons.history))
-                                    ],
-                              contents: (widget.role == 'customer')
-                                  ? [
-                                      CreateScreen(),
-                                      DashboardScreen(
-                                          uid: widget.uid,
-                                          role: widget.role,
-                                          query: 'booked',
-                                          title: 'תורים שנקבעו'),
-                                      DashboardScreen(
-                                          uid: widget.uid,
-                                          role: widget.role,
-                                          query: 'pending',
-                                          title: 'תורים שהוזמנו'),
-                                      DashboardScreen(
-                                          uid: widget.uid,
-                                          role: widget.role,
-                                          query: 'history',
-                                          title: 'היסטוריית שיחות')
-                                    ]
-                                  : [
-                                      DashboardScreen(
-                                          uid: widget.uid,
-                                          role: widget.role,
-                                          query: 'requests',
-                                          title: 'לוח הזמנות'),
-                                      DashboardScreen(
-                                          uid: widget.uid,
-                                          role: widget.role,
-                                          query: 'booked',
-                                          title: 'תורים שנקבעו'),
-                                      DashboardScreen(
-                                          uid: widget.uid,
-                                          role: widget.role,
-                                          query: 'history',
-                                          title: 'היסטוריית שיחות')
-                                    ]),
-                        ),
+                            child:
+                                //     SideTabscollapse(
+                                //   initialIndex: widget.initialIndex,
+                                //   role: widget.role,
+                                //   uid: widget.uid,
+                                // )
+
+                                VerticalTabs(
+                                    initialIndex: widget.initialIndex ?? 0,
+                                    direction: TextDirection.rtl,
+                                    tabBackgroundColor:
+                                        Colors.blue.withOpacity(0.3),
+                                    tabTextStyle:
+                                        TextStyle(color: Colors.white),
+                                    tabs: (widget.role == 'customer')
+                                        ? <Tab>[
+                                            Tab(
+                                              text: 'הזמן תור',
+                                              icon: Icon(
+                                                Icons.add,
+                                              ),
+                                            ),
+                                            Tab(
+                                                text: 'תורים שנקבעו',
+                                                icon:
+                                                    Icon(Icons.calendar_today)),
+                                            Tab(
+                                                text: 'תורים שהוזמנו',
+                                                icon:
+                                                    Icon(Icons.calendar_today)),
+                                            Tab(
+                                                text: 'היסטוריית שיחות',
+                                                icon: Icon(Icons.history)),
+                                            Tab(
+                                                text: 'יציאה',
+                                                icon: Icon(
+                                                    Icons.exit_to_app_sharp)),
+                                          ]
+                                        : <Tab>[
+                                            Tab(
+                                                text: 'לוח הזמנות',
+                                                icon: Icon(Icons.dashboard)),
+                                            Tab(
+                                                text: 'תורים שנקבעו',
+                                                icon:
+                                                    Icon(Icons.calendar_today)),
+                                            Tab(
+                                                text: 'היסטוריית שיחות',
+                                                icon: Icon(Icons.history)),
+                                            Tab(
+                                                text: 'יציאה',
+                                                icon: Icon(
+                                                    Icons.exit_to_app_sharp)),
+                                          ],
+                                    contents: (widget.role == 'customer')
+                                        ? [
+                                            CreateScreen(),
+                                            DashboardScreen(
+                                                uid: widget.uid,
+                                                role: widget.role,
+                                                query: 'booked',
+                                                title: 'תורים שנקבעו'),
+                                            DashboardScreen(
+                                                uid: widget.uid,
+                                                role: widget.role,
+                                                query: 'pending',
+                                                title: 'תורים שהוזמנו'),
+                                            DashboardScreen(
+                                                uid: widget.uid,
+                                                role: widget.role,
+                                                query: 'history',
+                                                title: 'היסטוריית שיחות'),
+                                            LogOutPage(auth: _auth),
+                                          ]
+                                        : [
+                                            DashboardScreen(
+                                                uid: widget.uid,
+                                                role: widget.role,
+                                                query: 'requests',
+                                                title: 'לוח הזמנות'),
+                                            DashboardScreen(
+                                                uid: widget.uid,
+                                                role: widget.role,
+                                                query: 'booked',
+                                                title: 'תורים שנקבעו'),
+                                            DashboardScreen(
+                                                uid: widget.uid,
+                                                role: widget.role,
+                                                query: 'history',
+                                                title: 'היסטוריית שיחות'),
+                                            LogOutPage(auth: _auth),
+                                          ])),
                       ),
                     ],
                   ),

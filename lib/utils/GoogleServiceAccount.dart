@@ -45,13 +45,6 @@ class GoogleServiceAccount {
       var event = CalendarClient.calendar.events;
 
       var events = event.list(adminPanelCalendarId);
-
-      events.then((showEvents) {
-        showEvents.items.forEach((Event ev) {
-          print(ev.summary);
-          print(ev.status);
-        });
-      });
     });
   }
 }

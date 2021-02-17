@@ -85,6 +85,9 @@ class _MyHomePageState extends State<MyHomePage> {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   router() async {
+    // var authUser = await FirebaseConstFunctions.getAuthenticatedUser
+    //     .call({'': ''}).catchError((e) => print(e));
+    // print(authUser.data);
     final user = _auth.currentUser;
     if (user != null) {
       print(user.uid);
@@ -120,22 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   initState() {
-    ///shows main screen for 2 sec and then pushes login screen
-    // Timer timer = Timer(Duration(seconds: 2), (() async {
-    //   final res = await FirebaseConstFunctions.getEvents.call({'': ''});
-    //   print(res.data);
-    //   print(res.data.first);
-    //
-    //   Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(
-    //           builder: (c) =>
-    //               EditScreen(event: EventInfo.fromMap(res.data.first))));
-    Timer timer = Timer(Duration(seconds: 2), (() async {
-      setState(() {
-        router();
-      });
-    }));
+    router();
+
     // Navigator.pushReplacement(
     //     context, MaterialPageRoute(builder: (con) => VideoCallWeb()));
     super.initState();

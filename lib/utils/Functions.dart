@@ -72,17 +72,19 @@ uploadNewUser() async {
   // });
 }
 
-String catchDialogText(String date, String hour, String length) {
-  return ' האם לשריין פגישה בתאריך  ' +
-      date +
-      '\n' +
-      ' למשך ' +
-      length +
-      ' דקות ' +
-      '\n' +
-      ' בשעה: ' +
-      hour +
-      '\n';
+String catchDialogText(String date, String hour, String length, bool delete) {
+  return delete
+      ? 'האם למחוק פגישה בתאריך ' + date + '\n' + ' בשעה: ' + hour
+      : ' האם לשריין פגישה בתאריך  ' +
+          date +
+          '\n' +
+          ' למשך ' +
+          length +
+          ' דקות ' +
+          '\n' +
+          ' בשעה: ' +
+          hour +
+          '\n';
 }
 
 String testDateTime(DateTime date, DateTime hour) {
@@ -168,6 +170,7 @@ setAdminCustomerFunction({
   String name,
   String birthDate,
 }) async {
+  String communicationMethod = '';
   var userCredentials;
   print('entered admin function');
   var codeValidation = FirebaseConstFunctions.codeValidation;
@@ -177,16 +180,17 @@ setAdminCustomerFunction({
   } else {
     if (email.isEmpty) {
       print('loging in via phone');
-
+      communicationMethod = 'phone';
       await auth
           .signInWithPhoneNumber(phoneToLocal(phone))
           .whenComplete(() => print('logged in by phone'))
           .catchError((e) => print(e));
-    } else
+    } else {
+      communicationMethod = 'email';
       await auth
           .createUserWithEmailAndPassword(email: email, password: password)
           .catchError((e) => print('failed creating user ' + e));
-
+    }
     var createUser = FirebaseConstFunctions.createCustomer;
 
     var data = {
@@ -199,6 +203,7 @@ setAdminCustomerFunction({
       "password": password,
       "fullName": name,
       "birthDate": birthDate,
+      "communicationMethod": communicationMethod
     };
     /*
     "customerID": data.customerID,
@@ -310,4 +315,19 @@ _selectDate({BuildContext context, StatefulWidget main}) async {
   } else {
     textControllerDate.text = DateFormat.yMMMd().format(selectedDate);
   }
+}
+
+nameAndTitleODM(BuildContext context, bool isWeb) async {
+  await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+          margin: EdgeInsets.only(bottom: 10),
+          child: SingleChildScrollView(
+            child: StateFullDialog(),
+          ),
+        );
+      });
 }

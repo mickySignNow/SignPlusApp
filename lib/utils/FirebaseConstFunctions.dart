@@ -26,7 +26,8 @@ class FirebaseConstFunctions {
       _functions.httpsCallable('CreateCustomerRating');
   static HttpsCallable createODMEvent =
       _functions.httpsCallable('CreateOnDemandEvent');
-  static HttpsCallable deleteEvent = _functions.httpsCallable('DeleteEvent');
+  static HttpsCallable deleteEvent =
+      _functions.httpsCallable('DeleteEventById');
   static HttpsCallable deletePastEvents =
       _functions.httpsCallable('DeletePastEvent');
   static HttpsCallable getAllCustomers =
@@ -57,4 +58,8 @@ class FirebaseConstFunctions {
       _functions.httpsCallable('UpdateLastLogin');
   static HttpsCallable interBookEventOnDemand =
       _functions.httpsCallable('InterBookEventOnDemand');
+  static HttpsCallable getAuthenticatedUser =
+      _functions.httpsCallable('GetAuthenticatedUser');
+  static HttpsCallable getOrginizationAbilty =
+      _functions.httpsCallable('CheckOrginizationAbility');
 }
