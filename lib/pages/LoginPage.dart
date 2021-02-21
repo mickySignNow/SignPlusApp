@@ -146,89 +146,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                // Column(
-                //   children: [
-                //     Center(
-                //       child: Container(
-                //         margin: kIsWeb
-                //             ? EdgeInsets.fromLTRB(
-                //                 MediaQuery.of(context).size.width / 4,
-                //                 16,
-                //                 MediaQuery.of(context).size.width / 4,
-                //                 0)
-                //             : EdgeInsets.fromLTRB(20, 16, 15, 0),
-                //         decoration: BoxDecoration(
-                //             borderRadius: BorderRadius.circular(25),
-                //             color: Color(0xffFFFFFF)),
-                //         child: CheckboxListTile(
-                //           title: Text(
-                //             'אני חירש.ת ',
-                //             textAlign: TextAlign.center,
-                //           ),
-                //           secondary: Image.asset(
-                //             'images/Ear Icon.png',
-                //             height: 35,
-                //           ),
-                //           subtitle: !_validate
-                //               ? Text(
-                //                   'אנא סמנ/י',
-                //                   style: homePageText(
-                //                       12, Colors.red, FontWeight.normal),
-                //                 )
-                //               : null,
-                //           activeColor: Colors.blue,
-                //           value: _deafCheck,
-                //           onChanged: (value) {
-                //             setState(() {
-                //               _translatorCheck = !value;
-                //               _deafCheck = value;
-                //             });
-                //           },
-                //         ),
-                //       ),
-                //     ),
-                //     Container(
-                //       margin: kIsWeb
-                //           ? EdgeInsets.fromLTRB(
-                //               MediaQuery.of(context).size.width / 4,
-                //               16,
-                //               MediaQuery.of(context).size.width / 4,
-                //               0)
-                //           : EdgeInsets.fromLTRB(20, 8, 15, 0),
-                //       decoration: BoxDecoration(
-                //           borderRadius: BorderRadius.circular(25),
-                //           color: Color(0xffFFFFFF)),
-                //
-                //       /// checkBox "אני מתורגמן"
-                //       child: CheckboxListTile(
-                //         title: Text(
-                //           'אני מתורגמנ.ית ',
-                //           textAlign: TextAlign.center,
-                //         ),
-                //         secondary: Image.asset(
-                //           'images/Translator Icon.png',
-                //           height: 35,
-                //         ),
-                //         subtitle: !_validate
-                //             ? Text(
-                //                 'אנא סמנ/י',
-                //                 style: homePageText(
-                //                     12, Colors.red, FontWeight.normal),
-                //               )
-                //             : null,
-                //         activeColor: Colors.blue,
-                //         value: _translatorCheck,
-                //         onChanged: (value) {
-                //           setState(() {
-                //             _deafCheck = !value;
-                //             _translatorCheck = value;
-                //           });
-                //         },
-                //       ),
-                //     ),
-                //   ],
-                // ),
-
                 SizedBox(height: 30),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -413,7 +330,7 @@ class _LoginPageState extends State<LoginPage> {
                             .signInWithEmailAndPassword(
                                 email:
                                     emailController.text.trim().toLowerCase(),
-                                password: passwordController.text)
+                                password: passwordController.text.trim())
                             .catchError((e) {
                           print(e.code);
                           setState(() {

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:sign_plus/pages/admin/AdminEventsDashboard.dart';
 import 'package:sign_plus/pages/admin/CustomerAdminDashboard.dart';
 import 'package:sign_plus/pages/admin/AdminPage.dart';
 import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
 
 import 'InterAdminDashboard.dart';
 import 'OrginizationAdminDashboard.dart';
-import 'TabbedEventsAdmin.dart';
 
-class TabbedAdmin extends StatefulWidget {
+class TabbedEventsAdmin extends StatefulWidget {
   int initialIndex;
-  TabbedAdmin({@required this.initialIndex});
+  TabbedEventsAdmin({@required this.initialIndex});
   @override
-  _TabbedAdminState createState() => _TabbedAdminState();
+  _TabbedEventsAdminState createState() => _TabbedEventsAdminState();
 }
 
-class _TabbedAdminState extends State<TabbedAdmin> {
+class _TabbedEventsAdminState extends State<TabbedEventsAdmin> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,28 +30,26 @@ class _TabbedAdminState extends State<TabbedAdmin> {
                   title: TabBar(
                 tabs: <Tab>[
                   Tab(
-                    text: 'משתמשים',
+                    text: 'עכשיו',
                     icon: Icon(
-                      Icons.hearing_disabled_sharp,
+                      Icons.timer_sharp,
                     ),
                   ),
-                  Tab(text: 'מתורגמנים', icon: Icon(Icons.translate_sharp)),
-                  Tab(text: 'ארגונים', icon: Icon(Icons.work)),
-                  Tab(
-                      text: 'ניהול אירועים',
-                      icon: Icon(Icons.event_note_sharp)),
+                  Tab(text: 'נקבעו', icon: Icon(Icons.calendar_today_sharp)),
+                  Tab(text: 'הוזמנו', icon: Icon(Icons.pending_sharp)),
+                  Tab(text: 'הסטוריה', icon: Icon(Icons.history)),
+                  Tab(text: 'חיפוש', icon: Icon(Icons.search)),
                 ],
               )),
             ),
             preferredSize: new Size(MediaQuery.of(context).size.width, 70.0),
           ),
           body: TabBarView(children: [
-            CustomerAdminDashboard(),
-            InterAdminDashboard(),
-            OrginizationAdminDashboard(),
-            TabbedEventsAdmin(
-              initialIndex: 3,
-            )
+            AdminEventsDashboard(query: 'booked'),
+            AdminEventsDashboard(query: 'booked'),
+            AdminEventsDashboard(query: 'requsets'),
+            AdminEventsDashboard(query: 'history'),
+            AdminEventsDashboard(query: 'booked'),
           ]),
         ),
       ),

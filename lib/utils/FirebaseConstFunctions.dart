@@ -17,4 +17,21 @@ class FirebaseConstFunctions {
       _functions.httpsCallable('CreateCustomer');
   static HttpsCallable createInter = _functions.httpsCallable('CreateInter');
   static HttpsCallable getEvents = _functions.httpsCallable('GetAllEvents');
+  static HttpsCallable getAllCustomers =
+      _functions.httpsCallable('GetAllCustomers');
+  static HttpsCallable getAllInters = _functions.httpsCallable('GetAllInters');
+  static HttpsCallable getAllOrginizations =
+      _functions.httpsCallable('GetAllOrginizations');
+  static HttpsCallable deleteUser = _functions.httpsCallable('DeleteUserById');
+  static HttpsCallable getAllUnOccupiedEvents =
+      _functions.httpsCallable('GetAllNotOccupiedEvents');
+  static HttpsCallable getAllOccupiedEvents =
+      _functions.httpsCallable('GetAllOccupiedEvents');
+  static HttpsCallable gethistoryEvents =
+      _functions.httpsCallable('GetAllOccupiedEvents');
+
+  static HttpsCallable createCustomerEmailPhone =
+      _functions.httpsCallable('CreateCustomerTest');
+  static HttpsCallable createInterEmailPhone =
+      _functions.httpsCallable('createInterTest');
 }

@@ -4,51 +4,57 @@ import 'package:flutter/material.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
 
 class CustomerData {
-  String email;
-  String customerId;
-  String cardId;
-  bool hasCredit;
-  String hourBank;
-  bool isActive;
+  String communicationMethod;
+  String customerID;
+  int identityNumber;
+  int code;
+  String address;
+  bool disabled;
   String fullName;
+  String birthDate;
+  int phone;
+  String password;
+  String role;
 
   CustomerData(
-      {@required this.email,
-      @required this.customerId,
-      @required this.cardId,
-      @required this.hasCredit,
-      @required this.hourBank,
-      @required this.isActive,
+      {@required this.role,
+      @required this.customerID,
+      @required this.identityNumber,
+      @required this.communicationMethod,
+      @required this.password,
+      @required this.phone,
+      @required this.address,
+      @required this.birthDate,
+      @required this.code,
+      @required this.disabled,
       @required this.fullName});
 
   CustomerData.fromMap(Map snapshot)
-      : email = snapshot['email'] ?? '',
-        customerId = snapshot['customerId'] ?? '',
-        cardId = snapshot['cardId'],
-        // location = snapshot['loc'],
-        hasCredit = snapshot['hasCredit'],
-        hourBank = snapshot['hourBank'],
-        isActive = snapshot['isActive'],
+      : role = snapshot['rolw'] ?? '',
+        customerID = snapshot['customerID'] ?? '',
+        identityNumber = snapshot['identityNumber'],
+        address = snapshot['address'],
+        phone = snapshot['phone'],
+        code = snapshot['code'],
+        disabled = snapshot['disabled'],
+        birthDate = snapshot['birthDate'],
+        password = snapshot['password'],
+        communicationMethod = snapshot['communicationMethod'],
         fullName = snapshot['fullName'] ?? '';
 
   UsertoJson() {
     return {
-      'email': email,
-      'customerId': customerId,
-      'cardId': cardId,
-      'hasCredit': hasCredit,
-      'hourBank': hourBank,
-      'isActive': isActive,
-      'fullName': fullName
+      'communicationMethod': communicationMethod,
+      'customerID': customerID,
+      'identityNumber': identityNumber,
+      'code': code,
+      'disabled': disabled,
+      'birthDate': birthDate,
+      'phone': phone,
+      'password': password,
+      'address': address,
+      'fullName': fullName,
+      'role': role,
     };
-  }
-
-  uploadCustomer(BuildContext context) {
-    DocumentReference doc =
-        FirebaseFirestore.instance.collection('customerData').doc(customerId);
-    doc.set(this.UsertoJson()).whenComplete(() => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (con) => TabbedPage(uid: customerId, role: 'customer'))));
   }
 }

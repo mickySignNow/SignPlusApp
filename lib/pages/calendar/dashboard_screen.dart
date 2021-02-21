@@ -147,6 +147,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ? StreamBuilder(
                   stream: dashboardQuery(widget.query, widget.role),
                   builder: (context, snapshot) {
+                    print(snapshot.data);
                     if (snapshot.hasData) {
                       if (snapshot.data.documents.length > 0) {
                         return ListView.builder(
@@ -459,50 +460,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                           bottom: 8.0),
                                                   child: InkWell(
                                                     onTap: () async {
-                                                      if (testTime(
-                                                          event
-                                                              .startTimeInEpoch,
-                                                          DateTime.parse(
-                                                              event.date))) {
-                                                        if (event.link !=
-                                                            null) {
-                                                          var name = 'signow';
-                                                          if (widget.role ==
-                                                              'customer') {
-                                                            final getname =
-                                                                await FirebaseFunctions
-                                                                    .instance
-                                                                    .httpsCallable(
-                                                                        "GetCustomerNameById")
-                                                                    .call({
-                                                              "customerID":
-                                                                  event.interId
-                                                            });
-                                                            name =
-                                                                '&name=${getname.data}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
-                                                          } else {
-                                                            final getname =
-                                                                await FirebaseFunctions
-                                                                    .instance
-                                                                    .httpsCallable(
-                                                                        "GetInterNameById")
-                                                                    .call({
-                                                              "interID":
-                                                                  event.interId
-                                                            });
-                                                            name =
-                                                                '&name=${getname.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
-                                                          }
-                                                          launch(event.link +
-                                                              name);
-                                                          isLinkPressed = true;
+                                                      // if (testTime(
+                                                      //     event
+                                                      //         .startTimeInEpoch,
+                                                      //     DateTime.parse(
+                                                      //         event.date))) {
+                                                      if (event.link != null) {
+                                                        var name = 'signow';
+                                                        if (widget.role ==
+                                                            'customer') {
+                                                          final getname =
+                                                              await FirebaseFunctions
+                                                                  .instance
+                                                                  .httpsCallable(
+                                                                      "GetCustomerNameById")
+                                                                  .call({
+                                                            "customerID":
+                                                                event.interId
+                                                          });
+                                                          name =
+                                                              '&name=${getname.data}&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9';
+                                                        } else {
+                                                          final getname =
+                                                              await FirebaseFunctions
+                                                                  .instance
+                                                                  .httpsCallable(
+                                                                      "GetInterNameById")
+                                                                  .call({
+                                                            "interID":
+                                                                event.interId
+                                                          });
+                                                          name =
+                                                              '&name=${getname.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
                                                         }
-                                                      } else {
-                                                        informationAlertDialog(
-                                                            context,
-                                                            'אנא הכנס/י בשעה המתאימה',
-                                                            'אישור');
+                                                        launch(
+                                                            event.link + name);
+                                                        isLinkPressed = true;
                                                       }
+                                                      // } else {
+                                                      //   informationAlertDialog(
+                                                      //       context,
+                                                      //       'אנא הכנס/י בשעה המתאימה',
+                                                      //       'אישור');
+                                                      // }
                                                     },
                                                     child: Text(
                                                       event.link ?? '',
@@ -617,11 +617,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : FutureBuilder(
                   future: getAllEventsAdmin(),
                   builder: (context, snapshot) {
+                    print(snapshot.data);
                     return ListView.builder(
                       itemCount: snapshot.data.length,
                       itemBuilder: (context, index) {
                         var event = EventInfo.fromMap(snapshot.data[index]);
-                        print(event);
+                        print(event.toJson());
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16.0),
                           child: InkWell(

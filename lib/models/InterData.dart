@@ -4,67 +4,61 @@ import 'package:flutter/material.dart';
 import 'package:sign_plus/pages/tabbedPage.dart';
 
 class InterData {
-  String email;
-  String interId;
-  Map<String, dynamic> certificate;
-  String speciality;
-  bool isActive;
+  String desc;
+  String interpreterID;
+  String role;
+  String identityNumber;
+  bool disabled;
+  String password;
   String fullName;
-  double score;
-  Map<String, dynamic> hoursOfWork;
-  int likes;
+  double avarageRating;
+  // List hoursOfWork;
+  String phone;
+  String address;
+  String cardID;
 
   InterData(
-      {@required this.email,
-      @required this.interId,
-      @required this.certificate,
-      @required this.speciality,
-      @required this.score,
-      @required this.likes,
-      @required this.hoursOfWork,
-      @required this.isActive,
+      {@required this.desc,
+      @required this.cardID,
+      @required this.phone,
+      @required this.identityNumber,
+      @required this.password,
+      @required this.disabled,
+      @required this.address,
+      @required this.role,
+      // @required this.hoursOfWork,
+      @required this.avarageRating,
+      @required this.interpreterID,
       @required this.fullName});
 
   InterData.fromMap(Map snapshot)
-      : email = snapshot['email'] ?? '',
-        interId = snapshot['interId'] ?? '',
-        certificate = snapshot['certificate'],
-        // location = snapshot['loc'],
-        hoursOfWork = snapshot['hoursOfWork'],
-        score = snapshot['score'],
-        speciality = snapshot['speciality'],
-        isActive = snapshot['isActive'],
-        likes = snapshot['likes'],
+      : phone = snapshot['phone'] ?? '',
+        cardID = snapshot['cardID'] ?? '',
+        identityNumber = snapshot['identityNumber'],
+        avarageRating = snapshot['avarageRating'] ?? 0.0,
+        password = snapshot['password'] ?? '',
+        // hoursOfWork = snapshot['hoursOfWork'] ,
+        role = snapshot['role'] ?? '',
+        interpreterID = snapshot['interpreterID'] ?? '',
+        address = snapshot['address'] ?? '',
+        disabled = snapshot['disabled'],
+        desc = snapshot['desc'] ?? '',
         fullName = snapshot['fullName'] ?? '';
 
   UsertoJson() {
     return {
-      'email': email,
-      'interId': interId,
-      'certificate': {
-        'image': certificate['image'] as String ?? '',
-        'id': certificate['id'] as String ?? '',
-        'experience': certificate['experience'] as String ?? ''
-      },
-      'hoursOfWork': {
-        'startTime': hoursOfWork['startTime'] as String ?? '',
-        'endTime': hoursOfWork['endTime'] as String ?? '',
-        'days': hoursOfWork['days'] as int ?? ''
-      },
+      'desc': desc,
+      'role': role,
+      'identityNumber': identityNumber,
+      // 'hoursOfWork': hoursOfWork,
+      'disabled': disabled,
+      'interpreterID': interpreterID,
       'fullName': fullName,
-      'isActive': isActive,
-      'speciality': speciality,
-      'likes': likes,
-      'score': score
+      'password': password,
+      'phone': phone,
+      'address': address,
+      'cardID': cardID,
+      'avarageRating': avarageRating
     };
-  }
-
-  uploadInter(BuildContext context) {
-    DocumentReference doc =
-        FirebaseFirestore.instance.collection('InterData').doc(interId);
-    doc.set(this.UsertoJson()).whenComplete(() => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (con) => TabbedPage(uid: interId, role: 'inter'))));
   }
 }

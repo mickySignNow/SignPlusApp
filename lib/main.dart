@@ -103,11 +103,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   initState() {
     ///shows main screen for 2 sec and then pushes login screen
-    Timer timer = Timer(Duration(seconds: 2), (() async {
-      setState(() {
-        router();
-      });
-    }));
+    // Timer timer = Timer(Duration(seconds: 2), (() async {
+    //   setState(() {
+    //     router();
+    //   });
+    // }));
+    Navigator.pushNamed(context, 'Admin');
     super.initState();
   }
 
