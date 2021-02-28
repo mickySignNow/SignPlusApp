@@ -146,7 +146,6 @@ setAdminCustomerFunction({
   } else {
     if (email.isEmpty)
       data = {
-        "customerID": auth.currentUser.uid,
         "cardID": password,
         "code": code,
         "phone": phone,
@@ -159,7 +158,7 @@ setAdminCustomerFunction({
       };
     else {
       data = {
-        "customerID": auth.currentUser.uid,
+        'email': email,
         "cardID": password,
         "code": code,
         "phone": phone,
@@ -171,6 +170,7 @@ setAdminCustomerFunction({
         'communicationMethod': 'email'
       };
     }
+    print(data);
     await FirebaseConstFunctions.createCustomerEmailPhone
         .call(data)
         .whenComplete(() {
@@ -187,81 +187,6 @@ setAdminCustomerFunction({
                     initialIndex: 0,
                   )));
     });
-
-    // if (email.isEmpty) {
-    //   print('loging in via phone');
-    //
-    //   print(phoneToLocal(phone));
-    //
-    //   var verifier = RecaptchaVerifier(
-    //     size: RecaptchaVerifierSize.compact,
-    //     theme: RecaptchaVerifierTheme.dark,
-    //   );
-    //   final res = await auth
-    //       .signInWithPhoneNumber(phoneToLocal(phone), verifier)
-    //       .whenComplete(() => print('logged in by phone'))
-    //       .catchError((e) => print(e));
-    //
-    //   await showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       TextEditingController controller = TextEditingController();
-    //       return AlertDialog(
-    //         content: Column(
-    //           children: [
-    //             TextFormField(
-    //               controller: controller,
-    //             ),
-    //             RaisedButton(
-    //               child: Text('אישור'),
-    //               onPressed: () {
-    //                 res.confirm(controller.text).catchError((e) => print(e));
-    //               },
-    //             )
-    //           ],
-    //         ),
-    //       );
-    //     },
-    //   );
-    //   // final AuthCredential credential = PhoneAuthProvider.getCredential(
-    //   //   verificationId: res.verificationId,
-    //   //   smsCode: ,
-    //   // );
-    //   // auth.signInWithCredential(credential).catchError((e) => print(e));
-    //   // UserCredential cred = await res.confirm(res.verificationId);
-    // } else
-    //   await auth
-    //       .createUserWithEmailAndPassword(email: email, password: password)
-    //       .catchError((e) => print('failed creating user ' + e));
-    //
-    // var createUser = FirebaseFunctions.instance.httpsCallable('CreateCustomer');
-    // var data = {
-    //   "customerID": auth.currentUser.uid,
-    //   "cardID": password,
-    //   "code": code,
-    //   "phone": phone,
-    //   "address": address,
-    //   "identityNumber": password,
-    //   "password": password,
-    //   "fullName": name,
-    //   "birthDate": birthDate,
-    // };
-    //
-    // print(data);
-    // createUser.call(data).whenComplete(() {
-    //   print('uploaded user');
-    //   try {
-    //     auth.signOut();
-    //   } catch (e) {
-    //     print(e);
-    //   }
-    //   Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(
-    //           builder: (con) => TabbedAdmin(
-    //                 initialIndex: 0,
-    //               )));
-    // });
   }
 }
 
@@ -277,20 +202,31 @@ setAdminInterFunction({
   String cardID,
   String desc,
 }) async {
-  var createUser = FirebaseConstFunctions.createInter;
+  var createUser = FirebaseConstFunctions.createInterEmailPhone;
+  var data;
+  if (email.isEmpty) {
+    data = {
+      'phone': phone,
+      'address': address,
+      'identityNumber': cardID,
+      'password': password,
+      'fullName': name,
+      'desc': desc,
+      'communicationMethod': 'phone'
+    };
+  } else {
+    data = {
+      'phone': phone,
+      'address': address,
+      'identityNumber': cardID,
+      'password': password,
+      'fullName': name,
+      'desc': desc,
+      'communicationMethod': 'email',
+      'email': email
+    };
+  }
 
-  var data = {
-    'avarage-rating': null,
-    'hours-of-work': [],
-    'interID': auth.currentUser.uid ?? '',
-    'phone': phone,
-    'cardID': cardID,
-    'address': address,
-    'identityNumber': cardID,
-    'password': password,
-    'fullName': name,
-    'desc': desc
-  };
   print(data);
   await createUser.call(data).whenComplete(() {
     print('uploaded inter');

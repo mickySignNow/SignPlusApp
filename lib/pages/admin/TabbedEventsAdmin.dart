@@ -20,7 +20,7 @@ class _TabbedEventsAdminState extends State<TabbedEventsAdmin> {
     return MaterialApp(
       home: DefaultTabController(
         initialIndex: widget.initialIndex,
-        length: 4,
+        length: 5,
         child: Scaffold(
           appBar: PreferredSize(
             child: new Container(

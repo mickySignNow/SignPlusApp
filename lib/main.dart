@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis_auth/auth.dart';
 import 'package:sign_plus/models/calendar_client.dart';
+import 'package:sign_plus/pages/NotificationPage.dart';
 import 'package:sign_plus/pages/admin/AdminPage.dart';
 import 'package:sign_plus/pages/LoginPage.dart';
 import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
@@ -108,7 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
     //     router();
     //   });
     // }));
-    Navigator.pushNamed(context, 'Admin');
+    Navigator.push(context,
+        MaterialPageRoute(builder: (con) => TabbedAdmin(initialIndex: 0)));
     super.initState();
   }
 

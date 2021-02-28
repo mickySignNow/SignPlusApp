@@ -57,6 +57,8 @@ class _AdminEventsDashboardState extends State<AdminEventsDashboard> {
         list =
             await FirebaseConstFunctions.getAllUnOccupiedEvents.call({'': ""});
         break;
+      case 'now':
+        break;
     }
     print(list.data);
     return list.data;
@@ -111,232 +113,237 @@ class _AdminEventsDashboardState extends State<AdminEventsDashboard> {
           child: FutureBuilder(
             future: dashboardQuery(widget.query),
             builder: (context, snapshot) {
-              print(snapshot.data);
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (context, index) {
-                  var event = EventInfo.fromMap(snapshot.data[index]);
-                  print(event.toJson());
-                  return Padding(
-                    padding: EdgeInsets.only(bottom: 16.0),
-                    child: InkWell(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              actions: [
-                                FlatButton(
-                                  child: Text('שנה פרטים'),
-                                  onPressed: () {
-                                    /// change event details
-                                  },
+              if (snapshot.hasData) {
+                print(snapshot.data);
+                return ListView.builder(
+                  itemCount: snapshot.data.length,
+                  itemBuilder: (context, index) {
+                    var event = EventInfo.fromMap(snapshot.data[index]);
+                    print(event.toJson());
+                    return Padding(
+                      padding: EdgeInsets.only(bottom: 16.0),
+                      child: InkWell(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                actions: [
+                                  FlatButton(
+                                    child: Text('שנה פרטים'),
+                                    onPressed: () {
+                                      /// change event details
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: Text('מחק'),
+                                    onPressed: () {
+                                      /// delete events
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: Text('שייך'),
+                                    onPressed: () {
+                                      /// assign essign event to inter by mail
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: Text('בטל'),
+                                    onPressed: () => Navigator.pop(context),
+                                  )
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          // crossAxisAlignment: CrossAxisAlignment.end,
+                          // mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Container(
+                                margin: isWeb
+                                    ? EdgeInsets.only(
+                                        left:
+                                            MediaQuery.of(context).size.width /
+                                                4,
+                                        right: 10)
+                                    : EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 10),
+                                padding: EdgeInsets.only(
+                                  bottom: 16.0,
+                                  top: 16.0,
+                                  left: 16.0,
+                                  right: 16.0,
                                 ),
-                                FlatButton(
-                                  child: Text('מחק'),
-                                  onPressed: () {
-                                    /// delete events
-                                  },
-                                ),
-                                FlatButton(
-                                  child: Text('שייך'),
-                                  onPressed: () {
-                                    /// assign essign event to inter by mail
-                                  },
-                                ),
-                                FlatButton(
-                                  child: Text('בטל'),
-                                  onPressed: () => Navigator.pop(context),
-                                )
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        // crossAxisAlignment: CrossAxisAlignment.end,
-                        // mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Container(
-                              margin: isWeb
-                                  ? EdgeInsets.only(
-                                      left:
-                                          MediaQuery.of(context).size.width / 4,
-                                      right: 10)
-                                  : EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 10),
-                              padding: EdgeInsets.only(
-                                bottom: 16.0,
-                                top: 16.0,
-                                left: 16.0,
-                                right: 16.0,
-                              ),
-                              color: Colors.white,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.black12,
-                                        spreadRadius: 10,
-                                        blurRadius: 10)
-                                  ]),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  (event.occupied)
-                                      ? Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              event.title,
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 22,
-                                                // letterSpacing: 1,
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      : Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Flexible(
-                                              flex: 1,
-                                              child: Text(
-                                                'ממתין לאישור מתורגמן',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  // letterSpacing: 1,
-                                                ),
-                                              ),
-                                            ),
-                                            Flexible(
-                                              flex: 1,
-                                              child: Text(
+                                color: Colors.white,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black12,
+                                          spreadRadius: 10,
+                                          blurRadius: 10)
+                                    ]),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    (event.occupied)
+                                        ? Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Text(
                                                 event.title,
                                                 style: TextStyle(
                                                   color: Colors.black,
                                                   fontWeight: FontWeight.bold,
+                                                  fontSize: 22,
                                                   // letterSpacing: 1,
                                                 ),
                                               ),
+                                            ],
+                                          )
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Flexible(
+                                                flex: 1,
+                                                child: Text(
+                                                  'ממתין לאישור מתורגמן',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    // letterSpacing: 1,
+                                                  ),
+                                                ),
+                                              ),
+                                              Flexible(
+                                                flex: 1,
+                                                child: Text(
+                                                  event.title,
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontWeight: FontWeight.bold,
+                                                    // letterSpacing: 1,
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                    SizedBox(height: 10),
+                                    Text(event.customerName),
+                                    Text(
+                                      event.description ?? '',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.black38,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    // Text(
+                                    //   StaticObjects.nameAndId[event.id],
+                                    //   style: TextStyle(color: Colors.red),
+                                    // ),
+                                    SizedBox(height: 10),
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 8.0, bottom: 8.0),
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            if (event.link != null) {
+                                              launch(event.link +
+                                                  '&name=invisibleAdmin');
+                                              isLinkPressed = true;
+                                            }
+                                          });
+                                        },
+                                        child: Text(
+                                          event.link ?? '',
+                                          style: TextStyle(
+                                            color: CustomColor.dark_blue
+                                                .withOpacity(0.5),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          height: 100,
+                                          width: 5,
+                                          color: (event.occupied)
+                                              ? CustomColor.neon_green
+                                              : Colors.red,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              DateFormat('dd/MM/yy').format(
+                                                  DateTime.parse(event.date)),
+                                              style: TextStyle(
+                                                color: CustomColor.dark_cyan,
+                                                fontFamily: 'OpenSans',
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                letterSpacing: 1.5,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(event.startTimeInEpoch))}',
+                                              style: TextStyle(
+                                                color: CustomColor.dark_cyan,
+                                                fontFamily: 'OpenSans',
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                letterSpacing: 1.5,
+                                              ),
+                                            ),
+                                            Text(
+                                              ' למשך ${event.length} דקות ',
+                                              style: TextStyle(
+                                                color: CustomColor.dark_cyan,
+                                                fontFamily: 'OpenSans',
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                letterSpacing: 1.5,
+                                              ),
                                             )
                                           ],
-                                        ),
-                                  SizedBox(height: 10),
-                                  Text(event.customerName),
-                                  Text(
-                                    event.description ?? '',
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.black38,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      letterSpacing: 1,
+                                        )
+                                      ],
                                     ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  // Text(
-                                  //   StaticObjects.nameAndId[event.id],
-                                  //   style: TextStyle(color: Colors.red),
-                                  // ),
-                                  SizedBox(height: 10),
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                        top: 8.0, bottom: 8.0),
-                                    child: InkWell(
-                                      onTap: () {
-                                        setState(() {
-                                          if (event.link != null) {
-                                            launch(event.link +
-                                                '&name=invisibleAdmin');
-                                            isLinkPressed = true;
-                                          }
-                                        });
-                                      },
-                                      child: Text(
-                                        event.link ?? '',
-                                        style: TextStyle(
-                                          color: CustomColor.dark_blue
-                                              .withOpacity(0.5),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        height: 100,
-                                        width: 5,
-                                        color: (event.occupied)
-                                            ? CustomColor.neon_green
-                                            : Colors.red,
-                                      ),
-                                      SizedBox(width: 10),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            DateFormat('dd/MM/yy').format(
-                                                DateTime.parse(event.date)),
-                                            style: TextStyle(
-                                              color: CustomColor.dark_cyan,
-                                              fontFamily: 'OpenSans',
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              letterSpacing: 1.5,
-                                            ),
-                                          ),
-                                          Text(
-                                            '${DateFormat('HH:mm').format(DateTime.fromMillisecondsSinceEpoch(event.startTimeInEpoch))}',
-                                            style: TextStyle(
-                                              color: CustomColor.dark_cyan,
-                                              fontFamily: 'OpenSans',
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              letterSpacing: 1.5,
-                                            ),
-                                          ),
-                                          Text(
-                                            ' למשך ${event.length} דקות ',
-                                            style: TextStyle(
-                                              color: CustomColor.dark_cyan,
-                                              fontFamily: 'OpenSans',
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                              letterSpacing: 1.5,
-                                            ),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
+                    );
+                  },
+                );
+              } else {
+                return CircularProgressIndicator();
+              }
             },
           ),
         ),

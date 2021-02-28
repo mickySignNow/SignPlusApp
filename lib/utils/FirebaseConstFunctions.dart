@@ -28,10 +28,11 @@ class FirebaseConstFunctions {
   static HttpsCallable getAllOccupiedEvents =
       _functions.httpsCallable('GetAllOccupiedEvents');
   static HttpsCallable gethistoryEvents =
-      _functions.httpsCallable('GetAllOccupiedEvents');
-
+      _functions.httpsCallable('GetHistoryEvents');
   static HttpsCallable createCustomerEmailPhone =
       _functions.httpsCallable('CreateCustomerTest');
   static HttpsCallable createInterEmailPhone =
-      _functions.httpsCallable('createInterTest');
+      _functions.httpsCallable('CreateInterTest');
+  static HttpsCallable getAllEvents =
+      _functions.httpsCallable('GetAllEventsWithHistories');
 }

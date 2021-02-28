@@ -231,11 +231,6 @@ class _CustomerAdminDashboardState extends State<CustomerAdminDashboard> {
                                             });
                                           }
                                         }
-                                        print(address);
-                                        print(birthDateString);
-                                        print(name);
-                                        print(phone);
-                                        print(email);
 
                                         setAdminCustomerFunction(
                                           address: address,

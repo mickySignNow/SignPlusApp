@@ -685,7 +685,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
                                     HttpsCallable createEvent =
                                         FirebaseFunctions.instance
-                                            .httpsCallable('CreateEvent');
+                                            .httpsCallable('CreateEventTest');
                                     final eventLeft = await createEvent
                                         .call(eventInfo.toJson())
                                         .catchError((e) => print(e));

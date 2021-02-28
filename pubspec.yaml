@@ -53,6 +53,8 @@ dependencies:
   file_picker: ^2.1.4
   csv: ^4.1.0
   vertical_tabs: ^0.2.0
+  firebase_messaging: ^7.0.3
+
 
 
 
