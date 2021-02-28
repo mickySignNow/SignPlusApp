@@ -191,7 +191,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                               buttonColorForYes: Colors.red,
                                               buttonTextColorForYes:
                                                   Colors.white,
-                                              buttonTextForNo: 'בטל',
+                                              buttonTextForNo: 'לא למחוק',
                                               buttonColorForNo:
                                                   Colors.transparent,
                                               buttonTextColorForNo: Colors.red,
@@ -207,6 +207,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                   calendar.delete(
                                                       event.gEventId, true);
                                                 }
+                                                Navigator.of(context).pop();
                                               },
                                               context: context,
                                               title: 'ביטול תור',
@@ -718,11 +719,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         child: Text('מחק'),
                                         onPressed: () async {
                                           var occupied =
-                                          await FirebaseConstFunctions
-                                              .deleteEvent
-                                              .call({
-                                            'eventID': event.id
-                                          });
+                                              await FirebaseConstFunctions
+                                                  .deleteEvent
+                                                  .call({'eventID': event.id});
                                           if (occupied.data.runtimeType !=
                                               bool) {
                                             calendar.delete(

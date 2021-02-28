@@ -5,15 +5,16 @@ import 'package:intl/intl.dart';
 
 /// class for events to firebase and read from firebase
 class ODMEvent {
-  static final NOW = DateTime.now();
   final String interId;
   final String title;
   final String link;
   bool isAnswered;
-  String status;
+  String state;
   final String customerName;
+  final String customerId;
   final String interName;
-  final start;
+  final int start;
+  final int end;
 
   DateTime requestTime;
 
@@ -24,9 +25,11 @@ class ODMEvent {
   /// constructor will require what parameters must EventInfo class have in each instance
   ODMEvent({
     this.start,
+    this.end,
     this.requestTime,
     @required this.title,
     this.isAnswered,
+    this.customerId,
     // @required this.description,
     @required this.link,
     // @required this.email,
@@ -34,7 +37,7 @@ class ODMEvent {
     this.interName,
     // @required this.length,
     // @required this.date,
-    this.status,
+    this.state,
     // @required this.answer,
     this.interId,
     // @required this.customerId,
@@ -47,18 +50,19 @@ class ODMEvent {
         customerName = snapshot['customerName'],
         requestTime =
             DateTime.fromMillisecondsSinceEpoch(snapshot['requestTime']),
-        interName = snapshot['interName'],
-        interId = snapshot['interID'],
-        isAnswered = snapshot['isAnswered'],
-        start = snapshot['start'],
-        status = snapshot['status'];
+        interName = snapshot['interName'] ?? '',
+        interId = snapshot['interID'] ?? '',
+        isAnswered = snapshot['answer'] ?? false,
+        start = snapshot['start'] ?? 0,
+        end = snapshot['end'] ?? 0,
+        customerId = snapshot['customerID'],
+        state = snapshot['state'] ?? '';
 
   /// convert EventInfo to Json
   toJson() {
     return {
       'title': title,
       'link': link,
-      'customerName': customerName,
     };
   }
 

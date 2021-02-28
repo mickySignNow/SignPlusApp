@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,8 @@ import 'dart:html' as html;
 
 import 'package:vertical_tabs/vertical_tabs.dart';
 
+import 'OnDemandDashboard.dart';
+
 class TabbedPage extends StatefulWidget {
   int initialIndex;
   final String uid;
@@ -31,11 +34,24 @@ class _TabbedPageState extends State<TabbedPage> {
   var height = 0.0;
   bool isLoadingNames = true;
 
+  bool interODM = false;
+
   final _auth = FirebaseAuth.instance;
+
+  isInterODM() async {
+    var ODM = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_auth.currentUser.uid)
+        .get();
+    print(ODM.data());
+
+    interODM = ODM.data()['onDemand'];
+  }
 
   @override
   void initState() {
     GoogleServiceAccount.getClient();
+    isInterODM();
     super.initState();
 
     width = MediaQuery.of(context).size.width;
@@ -44,10 +60,15 @@ class _TabbedPageState extends State<TabbedPage> {
 
   @override
   Widget build(BuildContext context) {
+    print(interODM);
     return MaterialApp(
       home: DefaultTabController(
         initialIndex: widget.initialIndex ?? 0,
-        length: (widget.role == 'customer') ? 4 : 3,
+        length: (widget.role == 'customer')
+            ? 4
+            : interODM
+                ? 4
+                : 3,
         child: Scaffold(
           appBar: PreferredSize(
             child: (width < 720)
@@ -152,7 +173,18 @@ class _TabbedPageState extends State<TabbedPage> {
                                         ),
                                       ),
                                       text: '',
-                                      icon: Icon(Icons.history))
+                                      icon: Icon(Icons.history)),
+                                  // interODM
+                                  //     ? Tab(
+                                  //         child: Flexible(
+                                  //           child: Text(
+                                  //             'שיחות בזמן אמת',
+                                  //             style: TextStyle(fontSize: 10),
+                                  //           ),
+                                  //         ),
+                                  //         text: '',
+                                  //         icon: Icon(Icons.timer_sharp))
+                                  //     : null,
                                 ],
                         )),
                   )
@@ -227,7 +259,8 @@ class _TabbedPageState extends State<TabbedPage> {
                               uid: widget.uid,
                               role: widget.role,
                               query: 'history',
-                              title: 'היסטוריית שיחות')
+                              title: 'היסטוריית שיחות'),
+                          // interODM ? OnDemandDashboard() : null,
                         ],
                 )
               : SafeArea(
@@ -289,6 +322,12 @@ class _TabbedPageState extends State<TabbedPage> {
                                                 text: 'יציאה',
                                                 icon: Icon(
                                                     Icons.exit_to_app_sharp)),
+                                            // interODM
+                                            //     ? Tab(
+                                            //         text: 'שיחות בזמן אמת',
+                                            //         icon:
+                                            //             Icon(Icons.timer_sharp))
+                                            //     : null,
                                           ],
                                     contents: (widget.role == 'customer')
                                         ? [
@@ -327,6 +366,9 @@ class _TabbedPageState extends State<TabbedPage> {
                                                 query: 'history',
                                                 title: 'היסטוריית שיחות'),
                                             LogOutPage(auth: _auth),
+                                            // interODM
+                                            //     ? OnDemandDashboard()
+                                            //     : null,
                                           ])),
                       ),
                     ],

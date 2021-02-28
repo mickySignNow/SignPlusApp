@@ -62,4 +62,6 @@ class FirebaseConstFunctions {
       _functions.httpsCallable('GetAuthenticatedUser');
   static HttpsCallable getOrginizationAbilty =
       _functions.httpsCallable('CheckOrginizationAbility');
+  static HttpsCallable deleteODM =
+      _functions.httpsCallable('DeleteODEventByCustomerId');
 }

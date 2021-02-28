@@ -4,6 +4,7 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:googleapis/calendar/v3.dart' as calendar;
 import 'package:intl/date_symbol_data_http_request.dart';
@@ -260,7 +261,7 @@ class _CreateScreenState extends State<CreateScreen> {
                         ],
                         color: Colors.blueAccent,
                       ),
-                      child: GestureDetector(
+                      child: InkWell(
                         child: Center(
                           child: Image.asset(
                             'images/sign+_white.png',
@@ -982,13 +983,6 @@ class _CreateScreenState extends State<CreateScreen> {
                                 ]),
                             child: Column(
                               children: [
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(Strings.onDemandEnterNameAndTitle),
-                                SizedBox(
-                                  height: 10,
-                                ),
                                 Column(
                                   children: [
                                     Text(
@@ -1100,6 +1094,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                                   final createODMEvent =
                                                       FirebaseConstFunctions
                                                           .createODMEvent;
+
                                                   createODMEvent
                                                       .call(event.toJson())
                                                       .whenComplete(() => Navigator
@@ -1108,8 +1103,9 @@ class _CreateScreenState extends State<CreateScreen> {
                                                               MaterialPageRoute(
                                                                   builder: (con) =>
                                                                       WaitingRoom(
-                                                                          event:
-                                                                              event))));
+                                                                        event:
+                                                                            event,
+                                                                      ))));
                                                 }
                                               });
                                             },
