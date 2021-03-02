@@ -46,6 +46,12 @@ class MyApp extends StatelessWidget {
     TextDirection rtl = TextDirection.rtl;
     return MaterialApp(
       routes: {
+        '': (context) => MyHomePage(),
+        'main': (context) => TabbedPage(
+              uid: StaticObjects.uid,
+              role: StaticObjects.role,
+              initialIndex: 0,
+            ),
         'LoginPage': (context) => LoginPage(),
         'Admin': (context) => TabbedAdmin(
               initialIndex: 0,
@@ -96,6 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       var res =
           await FirebaseConstFunctions.getRoleById.call({'uid': user.uid});
+      StaticObjects.uid = user.uid;
+      StaticObjects.role = res.data;
       if (res.data == 'inter') {
         var ODM = await FirebaseFirestore.instance
             .collection('inters-data')
@@ -105,15 +113,15 @@ class _MyHomePageState extends State<MyHomePage> {
         if (ODM.data()['onDemand']) {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (co) => OnDemandDashboard()));
+        } else {
+          Navigator.of(context).pushNamed('main');
         }
       } else {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (con) => TabbedPage(uid: user.uid, role: res.data)));
+        Navigator.of(context).pushNamed('main');
       }
     } else {
-      Navigator.of(context).pushNamed('LoginPage');
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (con) => LoginPage()));
       // Navigator.pushReplacement(
       //     context,
       //     MaterialPageRoute(

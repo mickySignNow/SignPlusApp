@@ -27,6 +27,7 @@ import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/Functions.dart';
 import 'package:sign_plus/utils/GoogleSignInFunctions.dart';
 import 'package:sign_plus/utils/NavigationRoutes.dart';
+import 'package:sign_plus/utils/StaticObjects.dart';
 import 'package:sign_plus/utils/secrets.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:googleapis/calendar/v3.dart' as cal;
@@ -310,7 +311,8 @@ class _LoginPageState extends State<LoginPage> {
                                 LoginPageTextField(
                                   controller: emailController,
                                   icon: Icon(Icons.mail_outline_sharp),
-                                  errorMessage: 'אנא הזינו מייל',
+                                  errorMessage:
+                                      'מייל לא נכון או לא קיים במערכת',
                                   hint: 'הזן מייל',
                                   inputType: TextInputType.emailAddress,
                                   wrong: wrongEmail,
@@ -441,17 +443,11 @@ class _LoginPageState extends State<LoginPage> {
                                             'uid': FirebaseAuth
                                                 .instance.currentUser.uid
                                           });
-                                          Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (con) => TabbedPage(
-                                                        uid: FirebaseAuth
-                                                            .instance
-                                                            .currentUser
-                                                            .uid,
-                                                        role: role.data,
-                                                        initialIndex: 1,
-                                                      )));
+                                          StaticObjects.uid =
+                                              userCredentials.user.uid;
+                                          StaticObjects.role = role.data;
+                                          Navigator.of(context)
+                                              .pushNamed('main');
                                         } else {
                                           print('something went wrong');
                                         }
@@ -459,7 +455,7 @@ class _LoginPageState extends State<LoginPage> {
                                     : () {
                                         setState(() async {
                                           gotSms = true;
-                                          if (phoneController.text.length > 0)
+                                          if (phoneController.text.length > 0) {
                                             confirmation = await FirebaseAuth
                                                 .instance
                                                 .signInWithPhoneNumber(
@@ -467,7 +463,18 @@ class _LoginPageState extends State<LoginPage> {
                                                         phoneController.text))
                                                 .catchError(
                                                     (e) => print(e.code));
-                                          else {
+                                            var role =
+                                                await FirebaseConstFunctions
+                                                    .getRoleById({
+                                              'uid': FirebaseAuth
+                                                  .instance.currentUser.uid
+                                            });
+                                            StaticObjects.uid =
+                                                _auth.currentUser.uid;
+                                            StaticObjects.role = role.data;
+                                            Navigator.pushNamed(
+                                                context, 'main');
+                                          } else {
                                             setState(() {
                                               emptyPhone = true;
                                             });
@@ -512,6 +519,8 @@ class _LoginPageState extends State<LoginPage> {
                                           FirebaseConstFunctions.getRoleById;
                                       var res = await getRoleById
                                           .call({'uid': userCred.uid});
+                                      StaticObjects.uid = userCred.uid;
+                                      StaticObjects.role = res.data;
                                       if (res.data == 'inter') {
                                         /// isInterOnDemand
                                         var ODM = await FirebaseFirestore
@@ -528,24 +537,11 @@ class _LoginPageState extends State<LoginPage> {
                                                   builder: (co) =>
                                                       OnDemandDashboard()));
                                         } else {
-                                          Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (con) => TabbedPage(
-                                                        role: res.data,
-                                                        uid: _auth
-                                                            .currentUser.uid,
-                                                      )));
+                                          Navigator.of(context)
+                                              .pushNamed('main');
                                         }
                                       } else {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (con) => TabbedPage(
-                                                      role: res.data,
-                                                      uid:
-                                                          _auth.currentUser.uid,
-                                                    )));
+                                        Navigator.of(context).pushNamed('main');
                                       }
                                     });
                                   },

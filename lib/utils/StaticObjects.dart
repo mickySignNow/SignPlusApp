@@ -6,4 +6,7 @@ class StaticObjects {
     'שירותי רווחה',
     'ספורט'
   ];
+
+  static String uid = '';
+  static String role = '';
 }

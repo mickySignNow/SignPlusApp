@@ -24,7 +24,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   @override
   void initState() {
     waitingListener();
-    Timer timer = Timer.periodic(Duration(minutes: 5), (timer) {
+    Timer timer = Timer.periodic(Duration(minutes: 2), (timer) {
       deleteEvent();
     });
     listener.onError((e) => print(e));

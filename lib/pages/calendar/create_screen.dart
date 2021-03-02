@@ -998,6 +998,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                       onChanged: (value) {
                                         setState(() {
                                           isEditing = true;
+                                          inProgress = false;
                                         });
 
                                         didChangeName = true;
@@ -1033,6 +1034,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                       onChanged: (value) {
                                         setState(() {
                                           isEditing = true;
+                                          inProgress = false;
                                         });
                                         didChangeTitle = true;
                                         title = value;
@@ -1067,7 +1069,6 @@ class _CreateScreenState extends State<CreateScreen> {
                                           ? () {}
                                           : () {
                                               setState(() {
-                                                inProgress = true;
                                                 if (nameController.text != '' &&
                                                     name != '')
                                                   nameTitle['name'] = name;
@@ -1084,6 +1085,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                                 if (nameTitle['name'] != null &&
                                                     nameTitle['title'] !=
                                                         null) {
+                                                  inProgress = true;
                                                   final uuid = Uuid();
                                                   ODMEvent event = ODMEvent(
                                                       title: nameTitle['title'],
