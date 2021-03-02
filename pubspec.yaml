@@ -53,6 +53,9 @@ dependencies:
   csv: ^4.1.0
   vertical_tabs: ^0.2.0
   webview_flutter: ^1.0.7
+  audio_service: ^0.16.2+1
+  just_audio: ^0.6.14+1
+
 
 #
 #dependency_overrides:

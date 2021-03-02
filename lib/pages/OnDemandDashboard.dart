@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sign_plus/models/ODMEvent.dart';
 import 'package:sign_plus/models/storage.dart';
+import 'package:sign_plus/utils/AlertAudioPlayer.dart';
 import 'package:sign_plus/utils/FirebaseConstFunctions.dart';
 import 'package:sign_plus/utils/style.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -16,14 +17,32 @@ class OnDemandDashboard extends StatefulWidget {
 
 class _OnDemandDashboardState extends State<OnDemandDashboard> {
   getODMEvents() {
-    return FirebaseFirestore.instance
+    final snapShot = FirebaseFirestore.instance
         .collection('on-demand-events')
-        .where('interID', isEqualTo: '')
+        .where('state', isEqualTo: 'pending')
         .snapshots();
+    return snapShot;
   }
 
   getTimeFromString(String time) {
     return time.substring(12, time.length - 1);
+  }
+
+  playSoundWhenChanged(Stream<QuerySnapshot> snapshot) async {
+    snapshot.listen((event) {
+      event.docChanges.forEach((element) {
+        print(element.type);
+        if (element.type == DocumentChangeType.added) {
+          startMusic();
+        }
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    playSoundWhenChanged(getODMEvents());
+    super.initState();
   }
 
   @override
@@ -43,29 +62,37 @@ class _OnDemandDashboardState extends State<OnDemandDashboard> {
               )
             ],
           ),
-          Flexible(
+          Expanded(
             child: StreamBuilder(
               stream: getODMEvents(),
               builder: (context, snapshot) {
-                print('Stream ${snapshot.data}');
+                print('Stream ${snapshot.hasData}');
                 if (snapshot.hasData) {
+                  print(snapshot.data);
                   return ListView(
                       children: snapshot.data.docs.map((doc) {
-                    print(doc);
-                    ODMEvent event = ODMEvent.fromMap(doc);
-                    print(event.toJson());
+                    print('doc $doc');
+                    print(doc['title']);
+                    print(doc['customerName']);
+                    print(doc['requestTime']);
+                    // ODMEvent event = ODMEvent.fromMap(doc);
+                    // print(event.toJson());
+                    final title = doc['title'];
+                    final name = doc['customerName'];
                     return Card(
                       child: ListTile(
                         leading: Icon(Icons.call_sharp),
-                        title: Text(event.title),
+                        title: Text(title),
                         subtitle: Column(
                           children: [
-                            Text(event.customerName),
+                            Text(name),
                             SizedBox(
                               height: 5,
                             ),
-                            // Text(DateFormat('hh:mm')
-                            //     .format(DateTime.parse(doc['requestTime']))),
+                            Text(DateFormat('HH:mm').format(
+                                DateTime.fromMillisecondsSinceEpoch(
+                                        doc['requestTime'])
+                                    .toLocal())),
                           ],
                         ),
                         trailing: RaisedButton(
@@ -73,9 +100,9 @@ class _OnDemandDashboardState extends State<OnDemandDashboard> {
                           onPressed: () async {
                             var name = await FirebaseConstFunctions
                                 .interBookEventOnDemand
-                                .call({'link': event.link});
-                            html.window.location.href = event.link +
-                                '&name=${name.data}&exitUrl=https://forms.gle/ZUNRJWgkvCckxaoR6';
+                                .call({'link': doc['link']});
+                            html.window.location.href =
+                                doc['link'] + '&name=${name.data}';
                           },
                         ),
                       ),

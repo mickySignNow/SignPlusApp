@@ -11,7 +11,7 @@ import 'package:sign_plus/models/calendar_client.dart';
 import 'package:sign_plus/models/event_info.dart';
 import 'package:sign_plus/pages/OnDemandDashboard.dart';
 import 'package:sign_plus/pages/admin/AdminPage.dart';
-import 'package:sign_plus/pages/LoginPage.dart';
+import 'package:sign_plus/pages/LoginPageAssest/LoginPage.dart';
 import 'package:sign_plus/pages/admin/TabbedAdmin.dart';
 import 'package:sign_plus/pages/calendar/dashboard_screen.dart';
 import 'package:sign_plus/pages/calendar/edit_screen.dart';
@@ -46,6 +46,12 @@ class MyApp extends StatelessWidget {
     TextDirection rtl = TextDirection.rtl;
     return MaterialApp(
       routes: {
+        '': (context) => MyHomePage(),
+        'main': (context) => TabbedPage(
+              role: StaticObjects.role,
+              uid: StaticObjects.uid,
+              initialIndex: 0,
+            ),
         'LoginPage': (context) => LoginPage(),
         'Admin': (context) => TabbedAdmin(
               initialIndex: 0,
@@ -93,6 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
       var res =
           await FirebaseConstFunctions.getRoleById.call({'uid': user.uid});
+      StaticObjects.uid = user.uid;
+      StaticObjects.role = res.data;
       if (res.data == 'inter') {
         var ODM = await FirebaseFirestore.instance
             .collection('inters-data')
@@ -102,16 +110,21 @@ class _MyHomePageState extends State<MyHomePage> {
         if (ODM.data()['onDemand']) {
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (co) => OnDemandDashboard()));
+        } else {
+          Navigator.pushNamed(context, 'main');
         }
       } else {
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (con) => TabbedPage(uid: user.uid, role: res.data)));
+        // Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //         builder: (con) => TabbedPage(uid: user.uid, role: res.data)));
+        Navigator.of(context).pushNamed('main');
       }
     } else {
-      Navigator.of(context).pushNamed('LoginPage');
-      // Navigator.pushReplacement(
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (con) => LoginPage())); // Navigator.pushReplacement(
       //     context,
       //     MaterialPageRoute(
       //         settings: NavigationRoutes.login, builder: (con) => LoginPage()));
