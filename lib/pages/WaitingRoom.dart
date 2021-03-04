@@ -36,16 +36,19 @@ class _WaitingRoomState extends State<WaitingRoom> {
     try {
       listener = FirebaseFirestore.instance
           .collection('on-demand-events')
-          .where('link', isEqualTo: widget.event.link.trim())
+          .where('eventID', isEqualTo: widget.event.eventID)
           .snapshots()
           .listen((data) {
         print(data.docs);
         data.docChanges.forEach((element) {
-          if (element.type == DocumentChangeType.modified)
-            setState(() {
-              print(element.type);
-              waiting = false;
-            });
+          if (element.type == DocumentChangeType.modified) {
+            if (data.docs.first['answer'] == true) {
+              setState(() {
+                print(element.type);
+                waiting = false;
+              });
+            }
+          }
         });
       });
     } catch (e) {
@@ -56,7 +59,7 @@ class _WaitingRoomState extends State<WaitingRoom> {
   deleteEvent() async {
     listener.cancel();
     await FirebaseConstFunctions.deleteODM
-        .call({'customerID': widget.event.customerId});
+        .call({'eventID': widget.event.eventID});
     Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -76,9 +79,11 @@ class _WaitingRoomState extends State<WaitingRoom> {
 
     print(waiting);
     if (!waiting) {
-      print('open link');
+      print('open link ${widget.event.link}');
+      print('open link ${widget.event.customerName}');
       html.window.location.href =
-          widget.event.link + '&name=${widget.event.customerName ?? 'אורח'}';
+          'https://signowvideo.web.app/?roomName=${widget.event.eventID}' +
+              '&name=${widget.event.customerName ?? 'אורח'}';
     }
     // html.window.open(
     //     widget.event.link +
@@ -126,8 +131,9 @@ class _WaitingRoomState extends State<WaitingRoom> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     InkWell(
-                      onTap: () => launch(widget.event.link +
-                          '&name=אורח&exitUrl=https://forms.gle/zq2Rk9ihL1Gdeoxg9'),
+                      onTap: () => html.window.location.href =
+                          'https://signowvideo.web.app/?roomName=${widget.event.eventID}' +
+                              '&name=${widget.event.customerName ?? 'אורח'}',
                       child: Container(
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(

@@ -1068,7 +1068,7 @@ class _CreateScreenState extends State<CreateScreen> {
                                       onPressed: inProgress
                                           ? () {}
                                           : () {
-                                              setState(() {
+                                              setState(() async {
                                                 if (nameController.text != '' &&
                                                     name != '')
                                                   nameTitle['name'] = name;
@@ -1088,26 +1088,24 @@ class _CreateScreenState extends State<CreateScreen> {
                                                   inProgress = true;
                                                   final uuid = Uuid();
                                                   ODMEvent event = ODMEvent(
-                                                      title: nameTitle['title'],
-                                                      customerName:
-                                                          nameTitle['name'],
-                                                      link:
-                                                          'https://signowvideo.web.app/?roomName=${uuid.v1().substring(0, 8)}');
+                                                    title: nameTitle['title'],
+                                                    customerName:
+                                                        nameTitle['name'],
+                                                  );
                                                   final createODMEvent =
-                                                      FirebaseConstFunctions
-                                                          .createODMEvent;
-
-                                                  createODMEvent
-                                                      .call(event.toJson())
-                                                      .whenComplete(() => Navigator
-                                                          .pushReplacement(
-                                                              context,
-                                                              MaterialPageRoute(
-                                                                  builder: (con) =>
-                                                                      WaitingRoom(
-                                                                        event:
-                                                                            event,
-                                                                      ))));
+                                                      await FirebaseConstFunctions
+                                                          .createODMEvent
+                                                          .call(event.toJson());
+                                                  event.eventID =
+                                                      createODMEvent.data;
+                                                  print(event.eventID);
+                                                  Navigator.pushReplacement(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (con) =>
+                                                              WaitingRoom(
+                                                                event: event,
+                                                              )));
                                                 }
                                               });
                                             },

@@ -455,7 +455,8 @@ class _LoginPageState extends State<LoginPage> {
                                     : () {
                                         setState(() async {
                                           gotSms = true;
-                                          if (phoneController.text.length > 0) {
+                                          if (phoneController.text.length ==
+                                              10) {
                                             confirmation = await FirebaseAuth
                                                 .instance
                                                 .signInWithPhoneNumber(

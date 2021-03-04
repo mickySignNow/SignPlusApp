@@ -15,6 +15,7 @@ class ODMEvent {
   final String interName;
   final int start;
   final int end;
+  String eventID;
 
   DateTime requestTime;
 
@@ -25,13 +26,14 @@ class ODMEvent {
   /// constructor will require what parameters must EventInfo class have in each instance
   ODMEvent({
     this.start,
+    this.eventID,
     this.end,
     this.requestTime,
     @required this.title,
     this.isAnswered,
     this.customerId,
     // @required this.description,
-    @required this.link,
+    this.link,
     // @required this.email,
     @required this.customerName,
     this.interName,
@@ -46,6 +48,7 @@ class ODMEvent {
   /// create instance of EventInfo and fill from a Map/dictionary
   ODMEvent.fromMap(Map snapshot)
       : title = snapshot['title'],
+        eventID = snapshot['eventID'],
         link = snapshot['link'],
         customerName = snapshot['customerName'],
         requestTime =
@@ -62,7 +65,6 @@ class ODMEvent {
   toJson() {
     return {
       'title': title,
-      'link': link,
     };
   }
 

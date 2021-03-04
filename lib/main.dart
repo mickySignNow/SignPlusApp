@@ -52,7 +52,6 @@ class MyApp extends StatelessWidget {
               role: StaticObjects.role,
               initialIndex: 0,
             ),
-        'LoginPage': (context) => LoginPage(),
         'Admin': (context) => TabbedAdmin(
               initialIndex: 0,
             ),
@@ -91,10 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
   router() async {
-    // var authUser = await FirebaseConstFunctions.getAuthenticatedUser
-    //     .call({'': ''}).catchError((e) => print(e));
-    // print(authUser.data);
-    final user = _auth.currentUser;
+    var user = _auth.currentUser;
     if (user != null) {
       print(user.uid);
 
@@ -104,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
           await FirebaseConstFunctions.getRoleById.call({'uid': user.uid});
       StaticObjects.uid = user.uid;
       StaticObjects.role = res.data;
+
       if (res.data == 'inter') {
         var ODM = await FirebaseFirestore.instance
             .collection('inters-data')
@@ -120,6 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Navigator.of(context).pushNamed('main');
       }
     } else {
+      print('user isnt logged in');
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (con) => LoginPage()));
       // Navigator.pushReplacement(
@@ -133,8 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
   initState() {
     router();
 
-    // Navigator.pushReplacement(
-    //     context, MaterialPageRoute(builder: (con) => VideoCallWeb()));
     super.initState();
   }
 

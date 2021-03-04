@@ -53,6 +53,8 @@ dependencies:
   csv: ^4.1.0
   vertical_tabs: ^0.2.0
   webview_flutter: ^1.0.7
+  audioplayers: ^0.17.4
+
 
 #
 #dependency_overrides:
@@ -80,6 +82,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
      - images/
+     - sounds/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
